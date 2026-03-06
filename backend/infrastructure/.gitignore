@@ -1,0 +1,40 @@
+# ==========================================
+# INFRASTRUCTURE GITIGNORE - Docker & Config
+# ==========================================
+
+# === Environment Files (CRITICAL - Never commit secrets) ===
+.env
+.env.*
+!.env.example
+!.env.template
+
+# === Docker Volumes (Data Persistence) ===
+volumes/
+data/
+postgres_data/
+redis_data/
+mongo_data/
+*.volume
+*.persist
+
+# === Docker ===
+.docker/
+docker-compose.override.yml
+docker-compose.*.yml
+!docker-compose.yml
+.dockerignore
+
+# === Config Server Git Repository (if cloned) ===
+config-repo/.git/
+config-repo/.gitignore
+
+# === SSL/TLS Certificates ===
+*.pem
+*.key
+*.crt
+*.cer
+*.der
+*.p12
+*.pfx
+certs/
+certificates/

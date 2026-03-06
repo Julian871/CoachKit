@@ -1,0 +1,13 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: notification-service
+  liquibase:
+    default-schema: notification
+    liquibase-schema: notification
+
+management:
+  server:
+    port: 8083

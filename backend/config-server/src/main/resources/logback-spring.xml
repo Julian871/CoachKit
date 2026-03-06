@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <springProfile name="default">
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            </encoder>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+
+        <!-- Suppress discovery retry noise -->
+        <logger name="com.netflix.discovery" level="WARN"/>
+        <logger name="com.netflix.discovery.shared.transport" level="ERROR"/>
+        <logger name="org.springframework.cloud.netflix.eureka" level="WARN"/>
+
+        <!-- Keep Config Server logs but reduce -->
+        <logger name="org.springframework.cloud.config.server" level="INFO"/>
+        <logger name="org.springframework.cloud.config.server.environment" level="INFO"/>
+
+        <!-- Suppress Tomcat -->
+        <logger name="org.apache.catalina" level="WARN"/>
+        <logger name="org.apache.coyote" level="WARN"/>
+    </springProfile>
+</configuration>

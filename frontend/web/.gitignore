@@ -1,0 +1,42 @@
+# ==========================================
+# FRONTEND GITIGNORE - Node/React/TypeScript
+# ==========================================
+
+# === Dependencies ===
+node_modules/
+.pnp/
+.pnp.js
+
+# === Build Output ===
+build/
+dist/
+out/
+
+# === Environment Files ===
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# === Testing ===
+coverage/
+
+# === Production ===
+*.tsbuildinfo
+
+# === PWA ===
+public/workbox-*.js
+public/sw.js
+precache-manifest.*.js
+
+# === Vite ===
+.vite/
+*.local
+
+# === ESLint / Prettier ===
+.eslintcache
+.prettiercache
+
+# === TypeScript ===
+*.tsbuildinfo

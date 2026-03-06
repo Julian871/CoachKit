@@ -1,0 +1,99 @@
+# ==========================================
+# ROOT GITIGNORE - Global Rules
+# ==========================================
+
+# === OS Generated Files ===
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# === IDE Files ===
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# VS Code
+.vscode/
+*.code-workspace
+.history/
+
+# Eclipse
+.classpath
+.project
+.settings/
+bin/
+
+# NetBeans
+nbproject/
+nbbuild/
+nbdist/
+.nb-gradle/
+
+# === Environment & Secrets ===
+.env
+.env.*
+!.env.example
+*.local
+*.secret
+secrets/
+credentials/
+
+# === Logs ===
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# === Temporary Files ===
+tmp/
+temp/
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+.cache/
+
+# === Build Outputs (General) ===
+dist/
+build/
+target/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# === Dependency Directories ===
+node_modules/
+jspm_packages/
+bower_components/
+
+# === Test Coverage ===
+coverage/
+.nyc_output/
+*.lcov
+
+# === Documentation Build ===
+docs/_build/
+site/
+
+# === Database Files ===
+*.sqlite
+*.sqlite3
+*.db
+*.rdb
+*.aof
+
+# === Docker ===
+.dockerignore
+docker-compose.override.yml

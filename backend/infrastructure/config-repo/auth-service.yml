@@ -1,0 +1,13 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: auth-service
+  liquibase:
+    default-schema: auth
+    liquibase-schema: auth
+
+management:
+  server:
+    port: 8081

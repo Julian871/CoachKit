@@ -1,0 +1,71 @@
+# ==========================================
+# BACKEND GITIGNORE - Java/Maven/Spring
+# ==========================================
+
+# === Maven ===
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# === Gradle ===
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+gradle-app.setting
+.gradletasknamecache
+
+# === Spring Boot ===
+spring-boot-*.pid
+.spring-boot-devtools.properties
+
+# === Java ===
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+hs_err_pid*
+replay_pid*
+
+# === Generated Sources ===
+gen/
+generated/
+generated-sources/
+generated-test-sources/
+
+# === Lombok ===
+.lombok/
+
+# === Application Properties (Local Overrides) ===
+application-local.yml
+application-local.properties
+application-dev.yml
+application-dev.properties
+application-prod.yml
+application-prod.properties
+!**/src/main/resources/application.yml
+!**/src/test/resources/application.yml
+
+# === Test Reports ===
+surefire-reports/
+failsafe-reports/
+test-output/
+
+# === Flyway / Liquibase ===
+flyway.conf
+!**/db/migration/
+!**/db/changelog/
+
+# === JVM ===
+.jvmconfig
