@@ -4,10 +4,73 @@ server:
 spring:
   application:
     name: auth-service
-  liquibase:
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+  flyway:
+    enabled: true
     default-schema: auth
-    liquibase-schema: auth
+    schemas: auth
+
+  data:
+    redis:
+      host: redis
+      port: 6379
+
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka:8761/eureka/
+  instance:
+    prefer-ip-address: true
 
 management:
-  server:
-    port: 8081
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+# Custom properties for auth service
+coachkit:
+  auth:
+    jwt:
+      secret: ${JWT_SECRET}  # No default! Must be set in .env
+      access-token-ttl: 15m
+      refresh-token-ttl: 7d
+
+    cookie:
+      refresh-name: refresh_token
+      http-only: true
+      secure: false
+      same-site: Strict
+      path: /api/v1/auth
+      max-age-days: 7
+
+    verification:
+      code-length: 6
+      ttl-minutes: 15
+
+    password-reset:
+      ttl-minutes: 60
+
+logging:
+  level:
+    com.coachkit.auth: DEBUG
