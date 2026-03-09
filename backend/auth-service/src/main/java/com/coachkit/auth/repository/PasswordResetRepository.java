@@ -18,4 +18,8 @@ public interface PasswordResetRepository extends JpaRepository<PasswordReset, UU
     @Modifying
     @Query("DELETE FROM PasswordReset r WHERE r.expiresAt < :now OR r.used = true")
     int deleteAllExpiredOrUsedBefore(Instant now);
+
+    @Modifying
+    @Query("DELETE FROM PasswordReset r WHERE r.user.id = :userId AND r.used = false")
+    void deleteByUserIdAndUsedFalse(UUID userId);
 }
