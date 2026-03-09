@@ -1,6 +1,5 @@
 package com.coachkit.auth.service.impl;
 
-import com.coachkit.auth.dto.request.DeviceInfoRequest;
 import com.coachkit.auth.dto.response.SessionResponse;
 import com.coachkit.auth.entity.User;
 import com.coachkit.auth.entity.UserSession;
@@ -31,24 +30,22 @@ public class SessionServiceImpl implements SessionService {
 
     @Override
     @Transactional
-    public String createSession(User user, DeviceInfoRequest deviceInfo, String ip, String userAgent) {
-        // Generate token and hash
+    public String createSession(User user, String deviceName, String ip, String userAgent) {
         String plaintextToken = jwtService.generateRandomToken();
         String tokenHash = jwtService.hashToken(plaintextToken);
 
-        // Save to database
         UserSession session = UserSession.builder()
                 .user(user)
                 .refreshTokenHash(tokenHash)
-                .deviceName(deviceInfo != null ? deviceInfo.getDeviceName() : null)
+                .deviceName(deviceName)
                 .ip(ip)
                 .userAgent(userAgent)
                 .expiresAt(Instant.now().plus(refreshTokenTtl))
                 .build();
 
         userSessionRepository.save(session);
-
         log.debug("Created session {} for user {}", session.getId(), user.getId());
+
         return plaintextToken;
     }
 
@@ -111,8 +108,7 @@ public class SessionServiceImpl implements SessionService {
 
     @Override
     @Transactional
-    public String rotateSession(String oldRefreshToken, DeviceInfoRequest deviceInfo, String ip, String userAgent) {
-        // Validate old session
+    public String rotateSession(String oldRefreshToken, String deviceName, String ip, String userAgent) {
         String oldHash = jwtService.hashToken(oldRefreshToken);
 
         UserSession oldSession = userSessionRepository
@@ -124,12 +120,9 @@ public class SessionServiceImpl implements SessionService {
         }
 
         User user = oldSession.getUser();
-
-        // Delete old
         userSessionRepository.delete(oldSession);
 
-        // Create new
-        String newPlaintextToken = createSession(user, deviceInfo, ip, userAgent);
+        String newPlaintextToken = createSession(user, deviceName, ip, userAgent);
 
         log.info("Rotated session for user {}", user.getId());
         return newPlaintextToken;

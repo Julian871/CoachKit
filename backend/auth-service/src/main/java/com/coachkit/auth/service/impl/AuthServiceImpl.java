@@ -1,6 +1,6 @@
 package com.coachkit.auth.service.impl;
 
-import com.coachkit.auth.dto.request.DeviceInfoRequest;
+import com.coachkit.auth.dto.LoginResult;
 import com.coachkit.auth.dto.request.LoginRequest;
 import com.coachkit.auth.dto.request.RegisterRequest;
 import com.coachkit.auth.dto.response.AuthResponse;
@@ -8,7 +8,10 @@ import com.coachkit.auth.dto.response.MessageResponse;
 import com.coachkit.auth.entity.User;
 import com.coachkit.auth.exception.AuthException;
 import com.coachkit.auth.repository.UserRepository;
-import com.coachkit.auth.service.*;
+import com.coachkit.auth.service.AuthService;
+import com.coachkit.auth.service.JwtService;
+import com.coachkit.auth.service.SessionService;
+import com.coachkit.auth.service.VerificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -31,14 +34,11 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public MessageResponse register(RegisterRequest request, DeviceInfoRequest deviceInfo,
-                                    String ip, String userAgent) {
-        // Check email exists
+    public MessageResponse register(RegisterRequest request, String deviceName, String ip, String userAgent) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new AuthException("Email already registered", HttpStatus.CONFLICT);
         }
 
-        // Create user
         User user = User.builder()
                 .email(request.getEmail())
                 .name(request.getName())
@@ -48,8 +48,6 @@ public class AuthServiceImpl implements AuthService {
                 .build();
 
         userRepository.save(user);
-
-        // Create verification code
         verificationService.createEmailVerification(user);
 
         log.info("Registered new user: {}", user.getEmail());
@@ -58,44 +56,35 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public AuthResponse login(LoginRequest request, DeviceInfoRequest deviceInfo,
-                              String ip, String userAgent) {
-        // Find user
+    public LoginResult login(LoginRequest request, String deviceName, String ip, String userAgent) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new AuthException("Invalid email or password", HttpStatus.UNAUTHORIZED));
 
-        // Check active
         if (!user.isActive()) {
             throw new AuthException("Account deactivated", HttpStatus.FORBIDDEN);
         }
 
-        // Verify password
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
             throw new AuthException("Invalid email or password", HttpStatus.UNAUTHORIZED);
         }
 
-        // Check email verified (optional: can be configurable)
         if (!user.isEmailVerified()) {
             throw new AuthException("Email not verified", HttpStatus.FORBIDDEN);
         }
 
-        // Create session (refresh token)
-        String refreshToken = sessionService.createSession(user, deviceInfo, ip, userAgent);
-
-        // Generate access token
+        String refreshToken = sessionService.createSession(user, deviceName, ip, userAgent);
         String accessToken = jwtService.generateAccessToken(user.getId(), user.getEmail());
 
-        // Build response (refresh token goes to cookie in controller)
-        AuthResponse response = new AuthResponse();
-        response.setAccessToken(accessToken);
-        response.setTokenType("Bearer");
-        response.setUserId(user.getId());
-        response.setEmail(user.getEmail());
-        response.setName(user.getName());
-        response.setEmailVerified(user.isEmailVerified());
+        AuthResponse userInfo = new AuthResponse();
+        userInfo.setAccessToken(accessToken);
+        userInfo.setTokenType("Bearer");
+        userInfo.setUserId(user.getId());
+        userInfo.setEmail(user.getEmail());
+        userInfo.setName(user.getName());
+        userInfo.setEmailVerified(user.isEmailVerified());
 
         log.info("User logged in: {}", user.getEmail());
-        return response;
+        return new LoginResult(accessToken, refreshToken, userInfo);
     }
 
     @Override
@@ -112,43 +101,33 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public void logoutAll(String accessToken) {
-        // Validate and extract user
         UUID userId = jwtService.validateAccessToken(accessToken);
-
-        // Terminate all sessions
         sessionService.terminateAllUserSessions(userId);
-
         log.info("User logged out from all devices: {}", userId);
     }
 
     @Override
     @Transactional
-    public AuthResponse refresh(String refreshToken, DeviceInfoRequest deviceInfo,
-                                String ip, String userAgent) {
-        // Rotate session: validate old, delete, create new
-        String newRefreshToken = sessionService.rotateSession(refreshToken, deviceInfo, ip, userAgent);
+    public LoginResult refresh(String refreshToken, String deviceName, String ip, String userAgent) {
+        String newRefreshToken = sessionService.rotateSession(refreshToken, deviceName, ip, userAgent);
 
-        // Get user from new session (need to validate it)
         String newHash = jwtService.hashToken(newRefreshToken);
         UUID userId = sessionService.validateAndGetUserId(newHash);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AuthException("User not found", HttpStatus.UNAUTHORIZED));
 
-        // Generate new access token
         String accessToken = jwtService.generateAccessToken(user.getId(), user.getEmail());
 
-        // Build response
-        AuthResponse response = new AuthResponse();
-        response.setAccessToken(accessToken);
-        response.setTokenType("Bearer");
-        response.setUserId(user.getId());
-        response.setEmail(user.getEmail());
-        response.setName(user.getName());
-        response.setEmailVerified(user.isEmailVerified());
+        AuthResponse userInfo = new AuthResponse();
+        userInfo.setAccessToken(accessToken);
+        userInfo.setTokenType("Bearer");
+        userInfo.setUserId(user.getId());
+        userInfo.setEmail(user.getEmail());
+        userInfo.setName(user.getName());
+        userInfo.setEmailVerified(user.isEmailVerified());
 
-        // Note: newRefreshToken goes to cookie in controller
         log.debug("Token refreshed for user: {}", user.getEmail());
-        return response;
+        return new LoginResult(accessToken, newRefreshToken, userInfo);
     }
 }
