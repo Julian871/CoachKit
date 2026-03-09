@@ -19,4 +19,6 @@ public interface SessionService {
     UUID validateAndGetUserId(String refreshTokenHash);
 
     String rotateSession(String oldRefreshToken, String deviceName, String ip, String userAgent);
+
+    boolean terminateSessionById(UUID sessionId, UUID userId);
 }

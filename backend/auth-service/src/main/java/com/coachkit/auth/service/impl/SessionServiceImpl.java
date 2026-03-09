@@ -127,4 +127,17 @@ public class SessionServiceImpl implements SessionService {
         log.info("Rotated session for user {}", user.getId());
         return newPlaintextToken;
     }
+
+    @Override
+    @Transactional
+    public boolean terminateSessionById(UUID sessionId, UUID userId) {
+        return userSessionRepository.findById(sessionId)
+                .filter(session -> session.getUser().getId().equals(userId))
+                .map(session -> {
+                    userSessionRepository.delete(session);
+                    log.info("Terminated session {} for user {}", sessionId, userId);
+                    return true;
+                })
+                .orElse(false);
+    }
 }
