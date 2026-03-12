@@ -6,6 +6,9 @@ spring:
     name: eureka-server
   main:
     banner-mode: off
+  cloud:
+    config:
+      enabled: false
 
 eureka:
   client:

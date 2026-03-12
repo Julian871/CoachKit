@@ -11,6 +11,13 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: auth
+        hbm2ddl.auto: none
+        temp.use_jdbc_metadata_defaults: true
+        jdbc.lob.non_contextual_creation: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: false
 
   flyway:
@@ -74,3 +81,13 @@ coachkit:
 logging:
   level:
     com.coachkit.auth: DEBUG
+
+# Swagger/OpenAPI configuration
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+    path: /swagger-ui.html
+  packages-to-scan: com.coachkit.auth.controller
+  paths-to-match: /api/**

@@ -3,7 +3,7 @@ CREATE TABLE user_sessions (
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     refresh_token_hash VARCHAR(255) NOT NULL UNIQUE,
     device_name VARCHAR(100),
-    ip_address VARCHAR(45),
+    ip VARCHAR(45),
     user_agent VARCHAR(500),
     expires_at TIMESTAMP NOT NULL,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
