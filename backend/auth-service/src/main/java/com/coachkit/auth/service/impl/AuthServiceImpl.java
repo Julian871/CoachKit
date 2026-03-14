@@ -8,10 +8,7 @@ import com.coachkit.auth.dto.response.MessageResponse;
 import com.coachkit.auth.entity.User;
 import com.coachkit.auth.exception.AuthException;
 import com.coachkit.auth.repository.UserRepository;
-import com.coachkit.auth.service.AuthService;
-import com.coachkit.auth.service.JwtService;
-import com.coachkit.auth.service.SessionService;
-import com.coachkit.auth.service.VerificationService;
+import com.coachkit.auth.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.UUID;
 
 @Slf4j
@@ -31,6 +29,7 @@ public class AuthServiceImpl implements AuthService {
     private final VerificationService verificationService;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
+    private final RateLimitService rateLimitService;
 
     @Override
     @Transactional
@@ -66,10 +65,6 @@ public class AuthServiceImpl implements AuthService {
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
             throw new AuthException("Invalid email or password", HttpStatus.UNAUTHORIZED);
-        }
-
-        if (!user.isEmailVerified()) {
-            throw new AuthException("Email not verified", HttpStatus.FORBIDDEN);
         }
 
         String refreshToken = sessionService.createSession(user, deviceName, ip, userAgent);
@@ -129,5 +124,52 @@ public class AuthServiceImpl implements AuthService {
 
         log.debug("Token refreshed for user: {}", user.getEmail());
         return new LoginResult(accessToken, newRefreshToken, userInfo);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AuthResponse getCurrentUser(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AuthException("User not found", HttpStatus.UNAUTHORIZED));
+
+        AuthResponse response = new AuthResponse();
+        response.setUserId(user.getId());
+        response.setEmail(user.getEmail());
+        response.setName(user.getName());
+        response.setEmailVerified(user.isEmailVerified());
+        return response;
+    }
+
+    @Override
+    @Transactional
+    public MessageResponse verifyEmail(UUID userId, String code) {
+        boolean verified = verificationService.verifyEmail(userId, code);
+
+        if (!verified) {
+            throw new AuthException("Invalid or expired verification code", HttpStatus.BAD_REQUEST);
+        }
+
+        return new MessageResponse("Email verified successfully");
+    }
+
+    @Override
+    @Transactional
+    public MessageResponse resendVerification(UUID userId, String deviceName) {
+        // Rate limit: 1 request per minute per user
+        String rateLimitKey = "resend_verification:" + userId;
+        if (!rateLimitService.tryAcquire(rateLimitKey, 1, Duration.ofMinutes(1))) {
+            throw new AuthException("Please wait before requesting another code", HttpStatus.TOO_MANY_REQUESTS);
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AuthException("User not found", HttpStatus.UNAUTHORIZED));
+
+        if (user.isEmailVerified()) {
+            return new MessageResponse("Email already verified");
+        }
+
+        verificationService.createEmailVerification(user);
+
+        return new MessageResponse("Verification email sent");
     }
 }

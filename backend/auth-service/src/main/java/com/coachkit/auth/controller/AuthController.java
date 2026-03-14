@@ -103,6 +103,21 @@ public class AuthController {
         return ResponseEntity.ok(result.userInfo());
     }
 
+    @GetMapping("/me")
+    @Operation(summary = "Get current user info", description = "Returns current authenticated user profile")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "User profile"),
+            @ApiResponse(responseCode = "401", description = "Not authenticated")
+    })
+    public ResponseEntity<AuthResponse> getCurrentUser(
+            @RequestHeader("Authorization") String authHeader) {
+
+        String accessToken = extractBearerToken(authHeader);
+        UUID userId = jwtService.validateAccessToken(accessToken);
+
+        return ResponseEntity.ok(authService.getCurrentUser(userId));
+    }
+
     @PostMapping("/refresh")
     @Operation(summary = "Refresh access token", description = "Rotates refresh token and returns new access token")
     @ApiResponses({
@@ -158,13 +173,7 @@ public class AuthController {
         String accessToken = extractBearerToken(authHeader);
         UUID userId = jwtService.validateAccessToken(accessToken);
 
-        boolean verified = verificationService.verifyEmail(userId, request.getCode());
-
-        if (!verified) {
-            throw new AuthException("Invalid or expired verification code", HttpStatus.BAD_REQUEST);
-        }
-
-        return ResponseEntity.ok(new MessageResponse("Email verified successfully"));
+        return ResponseEntity.ok(authService.verifyEmail(userId, request.getCode()));
     }
 
     @PostMapping("/resend-verification")
@@ -181,22 +190,7 @@ public class AuthController {
         String accessToken = extractBearerToken(authHeader);
         UUID userId = jwtService.validateAccessToken(accessToken);
 
-        // Rate limit: 1 request per minute per user
-        String rateLimitKey = "resend_verification:" + userId;
-        if (!rateLimitService.tryAcquire(rateLimitKey, 1, Duration.ofMinutes(1))) {
-            throw new AuthException("Please wait before requesting another code", HttpStatus.TOO_MANY_REQUESTS);
-        }
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new AuthException("User not found", HttpStatus.UNAUTHORIZED));
-
-        if (user.isEmailVerified()) {
-            return ResponseEntity.ok(new MessageResponse("Email already verified"));
-        }
-
-        verificationService.createEmailVerification(user);
-
-        return ResponseEntity.ok(new MessageResponse("Verification email sent"));
+        return ResponseEntity.ok(authService.resendVerification(userId, deviceName));
     }
 
     @PostMapping("/forgot-password")
