@@ -204,29 +204,7 @@ public class AuthController {
             @Valid @RequestBody ForgotPasswordRequest request,
             HttpServletRequest httpRequest) {
 
-        String email = request.getEmail().toLowerCase().trim();
-        String ip = httpRequest.getRemoteAddr();
-
-        // Rate limiting: 3 per email per hour, 10 per IP per hour
-        String emailKey = "forgot_password:email:" + email;
-        String ipKey = "forgot_password:ip:" + ip;
-
-        if (!rateLimitService.tryAcquire(emailKey, 3, Duration.ofHours(1))) {
-            throw new AuthException("Too many requests for this email", HttpStatus.TOO_MANY_REQUESTS);
-        }
-
-        if (!rateLimitService.tryAcquire(ipKey, 10, Duration.ofHours(1))) {
-            throw new AuthException("Too many requests from this IP", HttpStatus.TOO_MANY_REQUESTS);
-        }
-
-        // Always return success to prevent email enumeration
-        userRepository.findByEmail(email).ifPresent(user -> {
-            verificationService.createPasswordReset(user);
-            log.info("Password reset requested for: {}", email);
-        });
-
-        // Same message whether email exists or not
-        return ResponseEntity.ok(new MessageResponse("If this email is registered, you will receive a reset code"));
+        return ResponseEntity.ok(authService.forgotPassword(request.getEmail(), httpRequest.getRemoteAddr()));
     }
 
     @PostMapping("/reset-password")
@@ -240,37 +218,10 @@ public class AuthController {
     public ResponseEntity<MessageResponse> resetPassword(
             @Valid @RequestBody ResetPasswordRequest request) {
 
-        String email = request.getEmail().toLowerCase().trim();
-        String code = request.getCode();
-
-        // Rate limiting: 5 attempts per email per hour
-        String rateLimitKey = "reset_password:" + email;
-        if (!rateLimitService.tryAcquire(rateLimitKey, 5, Duration.ofHours(1))) {
-            throw new AuthException("Too many attempts, please try later", HttpStatus.TOO_MANY_REQUESTS);
-        }
-
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new AuthException("Invalid email or code", HttpStatus.BAD_REQUEST));
-
-        boolean validCode = verificationService.validatePasswordResetCode(user.getId(), code);
-
-        if (!validCode) {
-            throw new AuthException("Invalid or expired reset code", HttpStatus.BAD_REQUEST);
-        }
-
-        // Update password
-        user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
-        userRepository.save(user);
-
-        // Mark code as used
-        verificationService.markPasswordResetUsed(user.getId(), code);
-
-        // Terminate all sessions for security
-        sessionService.terminateAllUserSessions(user.getId());
-
-        log.info("Password reset successful for: {}", email);
-
-        return ResponseEntity.ok(new MessageResponse("Password reset successfully. Please log in again."));
+        return ResponseEntity.ok(authService.resetPassword(
+                request.getEmail(),
+                request.getCode(),
+                request.getNewPassword()));
     }
 
     // ==================== AUTHENTICATED ENDPOINTS ====================

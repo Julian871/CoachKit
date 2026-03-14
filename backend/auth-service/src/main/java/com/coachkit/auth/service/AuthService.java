@@ -41,4 +41,8 @@ public interface AuthService {
     MessageResponse verifyEmail(UUID userId, String code);
 
     MessageResponse resendVerification(UUID userId, String deviceName);
+
+    MessageResponse forgotPassword(String email, String ip);
+
+    MessageResponse resetPassword(String email, String code, String newPassword);
 }
