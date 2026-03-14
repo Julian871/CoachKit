@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/sessions")
+@RequestMapping("/v1/sessions")
 @RequiredArgsConstructor
 @Tag(name = "Sessions", description = "Manage active user sessions")
 @SecurityRequirement(name = "bearerAuth")
