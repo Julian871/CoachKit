@@ -4,6 +4,7 @@ import com.coachkit.auth.dto.response.SessionResponse;
 import com.coachkit.auth.exception.AuthException;
 import com.coachkit.auth.service.JwtService;
 import com.coachkit.auth.service.SessionService;
+import com.coachkit.auth.util.CookieUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -30,6 +31,7 @@ public class SessionController {
 
     private final SessionService sessionService;
     private final JwtService jwtService;
+    private final CookieUtil cookieUtil;
 
     @Value("${coachkit.auth.cookie.refresh-name:refresh_token}")
     private String refreshCookieName;
@@ -100,14 +102,8 @@ public class SessionController {
     }
 
     private String extractRefreshTokenHashFromCookie(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (refreshCookieName.equals(cookie.getName())) {
-                    return jwtService.hashToken(cookie.getValue());
-                }
-            }
-        }
-        return null; // No cookie found (e.g., token already expired)
+        return cookieUtil.extractRefreshToken(request)
+                .map(token -> jwtService.hashToken(token))
+                .orElse(null);
     }
 }

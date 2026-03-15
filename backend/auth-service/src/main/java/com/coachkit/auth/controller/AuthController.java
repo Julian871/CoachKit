@@ -4,10 +4,9 @@ import com.coachkit.auth.dto.LoginResult;
 import com.coachkit.auth.dto.request.*;
 import com.coachkit.auth.dto.response.AuthResponse;
 import com.coachkit.auth.dto.response.MessageResponse;
-import com.coachkit.auth.entity.User;
 import com.coachkit.auth.exception.AuthException;
-import com.coachkit.auth.repository.UserRepository;
 import com.coachkit.auth.service.*;
+import com.coachkit.auth.util.CookieUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -23,10 +22,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -37,12 +36,8 @@ import java.util.UUID;
 public class AuthController {
 
     private final AuthService authService;
-    private final RateLimitService rateLimitService;
     private final JwtService jwtService;
-    private final VerificationService verificationService;
-    private final UserRepository userRepository;
-    private final SessionService sessionService;
-    private final PasswordEncoder passwordEncoder;
+    private final CookieUtil cookieUtil;
 
     @Value("${coachkit.auth.cookie.refresh-name:refresh_token}")
     private String refreshCookieName;
@@ -125,21 +120,23 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "Invalid or expired refresh token")
     })
     public ResponseEntity<AuthResponse> refresh(
-            @CookieValue(name = "refresh_token", required = false) String refreshToken,
             @RequestHeader(value = "X-Device-Name", required = false) String deviceName,
             HttpServletRequest httpRequest,
             HttpServletResponse httpResponse) {
 
-        if (refreshToken == null) {
+        Optional<String> refreshTokenOpt = cookieUtil.extractRefreshToken(httpRequest);
+
+        if (refreshTokenOpt.isEmpty()) {
             throw new AuthException("Refresh token required", HttpStatus.UNAUTHORIZED);
         }
 
+        String refreshToken = refreshTokenOpt.get();
         String ip = httpRequest.getRemoteAddr();
         String userAgent = httpRequest.getHeader("User-Agent");
 
         LoginResult result = authService.refresh(refreshToken, deviceName, ip, userAgent);
 
-        setRefreshCookie(httpResponse, result.refreshToken());
+        cookieUtil.setRefreshCookie(httpResponse, result.refreshToken());
 
         return ResponseEntity.ok(result.userInfo());
     }
@@ -148,14 +145,13 @@ public class AuthController {
     @Operation(summary = "Logout", description = "Terminates current session")
     @ApiResponse(responseCode = "204", description = "Logged out")
     public ResponseEntity<Void> logout(
-            @CookieValue(name = "refresh_token", required = false) String refreshToken,
+            HttpServletRequest httpRequest,
             HttpServletResponse httpResponse) {
 
-        if (refreshToken != null) {
-            authService.logout(refreshToken);
-            clearRefreshCookie(httpResponse);
-        }
+        cookieUtil.extractRefreshToken(httpRequest)
+                .ifPresent(authService::logout);
 
+        cookieUtil.clearRefreshCookie(httpResponse);
         return ResponseEntity.noContent().build();
     }
 
