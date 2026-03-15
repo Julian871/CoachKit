@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -141,5 +142,16 @@ public class SessionServiceImpl implements SessionService {
                     return true;
                 })
                 .orElse(false);
+    }
+
+    @Scheduled(cron = "0 0 3 * * *")
+    @Transactional
+    public void cleanupExpiredSessions() {
+        Instant now = Instant.now();
+        int deleted = userSessionRepository.deleteAllExpiredBefore(now);
+
+        if (deleted > 0) {
+            log.info("Cleaned up {} expired sessions", deleted);
+        }
     }
 }
