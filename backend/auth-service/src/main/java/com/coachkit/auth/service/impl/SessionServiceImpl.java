@@ -3,12 +3,14 @@ package com.coachkit.auth.service.impl;
 import com.coachkit.auth.dto.response.SessionResponse;
 import com.coachkit.auth.entity.User;
 import com.coachkit.auth.entity.UserSession;
+import com.coachkit.auth.exception.AuthException;
 import com.coachkit.auth.repository.UserSessionRepository;
 import com.coachkit.auth.service.JwtService;
 import com.coachkit.auth.service.SessionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -113,10 +115,10 @@ public class SessionServiceImpl implements SessionService {
 
         UserSession oldSession = userSessionRepository
                 .findByRefreshTokenHash(oldHash)
-                .orElseThrow(() -> new RuntimeException("Invalid refresh token"));
+                .orElseThrow(() -> new AuthException("Invalid refresh token", HttpStatus.UNAUTHORIZED));
 
         if (oldSession.getExpiresAt().isBefore(Instant.now())) {
-            throw new RuntimeException("Refresh token expired");
+            throw new AuthException("Refresh token expired", HttpStatus.UNAUTHORIZED);
         }
 
         User user = oldSession.getUser();
