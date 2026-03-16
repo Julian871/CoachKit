@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <meta name="supported-color-schemes" content="light dark">
+    <title>Подтверждение email — CoachKit</title>
+    <!--[if mso]>
+    <noscript>
+        <xml>
+            <o:OfficeDocumentSettings>
+                <o:PixelsPerInch>96</o:PixelsPerInch>
+            </o:OfficeDocumentSettings>
+        </xml>
+    </noscript>
+    <![endif]-->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #312e81 0%, #5b21b6 100%);
+            color: #1e293b;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            padding: 40px 20px;
+        }
+
+        .email-wrapper {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #0f172a;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #4c1d95 0%, #6d28d9 50%, #8b5cf6 100%);
+            padding: 48px 40px;
+            text-align: center;
+            border-bottom: 4px solid #c4b5fd;
+        }
+
+        .brand-name {
+            font-size: 36px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 2px;
+            text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Content */
+        .content {
+            padding: 48px 40px;
+            text-align: center;
+            background-color: #0f172a;
+        }
+
+        .greeting {
+            font-size: 24px;
+            font-weight: 400;
+            color: #f1f5f9;
+            margin-bottom: 24px;
+        }
+
+        .greeting strong {
+            font-weight: 700;
+            color: #c4b5fd;
+        }
+
+        .message {
+            font-size: 16px;
+            color: #94a3b8;
+            margin-bottom: 32px;
+            line-height: 1.7;
+        }
+
+        /* CTA Button */
+        .cta-container {
+            margin: 40px 0;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 18px 48px;
+            background: linear-gradient(135deg, #6d28d9 0%, #4c1d95 100%);
+            border-radius: 12px;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            box-shadow: 0 8px 16px rgba(76, 29, 149, 0.5);
+            border: 2px solid #c4b5fd;
+            transition: all 0.3s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(76, 29, 149, 0.6);
+        }
+
+        /* Timer */
+        .timer-box {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 16px;
+            padding: 24px;
+            margin-top: 32px;
+            border: 2px solid #4c1d95;
+        }
+
+        .timer-text {
+            font-size: 15px;
+            color: #94a3b8;
+        }
+
+        .timer-text strong {
+            color: #c4b5fd;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        /* Divider */
+        .divider {
+            height: 2px;
+            background: linear-gradient(to right, transparent, #4c1d95, #8b5cf6, #4c1d95, transparent);
+            margin: 32px 0;
+        }
+
+        /* Security */
+        .security {
+            font-size: 14px;
+            color: #64748b;
+            line-height: 1.6;
+            background-color: #1e293b;
+            padding: 16px;
+            border-radius: 12px;
+            border-left: 4px solid #8b5cf6;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 32px 40px;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-top: 2px solid #4c1d95;
+        }
+
+        .footer-brand {
+            font-size: 20px;
+            font-weight: 700;
+            color: #c4b5fd;
+            margin-bottom: 16px;
+            letter-spacing: 1px;
+        }
+
+        .footer-links {
+            margin-bottom: 16px;
+        }
+
+        .footer-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 14px;
+            margin: 0 12px;
+            font-weight: 500;
+        }
+
+        .footer-links a:hover {
+            color: #c4b5fd;
+        }
+
+        .footer-copy {
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        /* Mobile */
+        @media screen and (max-width: 600px) {
+            body {
+                padding: 20px 16px;
+            }
+            .header {
+                padding: 32px 24px;
+            }
+            .content {
+                padding: 32px 24px;
+            }
+            .footer {
+                padding: 24px;
+            }
+            .cta-button {
+                width: 100%;
+                padding: 18px 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="email-wrapper">
+    <!-- Header -->
+    <div class="header">
+        <div class="brand-name">CoachKit</div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+        <div class="greeting">
+            Здравствуйте, <strong>${userName}</strong>
+        </div>
+
+        <div class="message">
+            Для подтверждения email адреса, нажмите кнопку ниже.
+        </div>
+
+        <div class="cta-container">
+            <a href="${verificationLink}" class="cta-button">Подтвердить email</a>
+        </div>
+
+        <div class="timer-box">
+            <div class="timer-text">
+                Ссылка действительна <strong>15 минут</strong>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="security">
+            <strong>🔒 Безопасность:</strong> Если вы не регистрировались в CoachKit, просто проигнорируйте это письмо.<br>
+            Никогда не передавайте ссылку для подтверждения третьим лицам.
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div class="footer-brand">CoachKit</div>
+
+        <div class="footer-links">
+            <a href="#">Поддержка</a>
+            <a href="#">Конфиденциальность</a>
+        </div>
+
+        <div class="footer-copy">
+            © 2026 CoachKit. Все права защищены.
+        </div>
+    </div>
+</div>
+</body>
+</html>

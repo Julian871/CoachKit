@@ -10,6 +10,18 @@ import lombok.Data;
 public class VerifyEmailRequest {
 
     @Schema(
+            description = "User email address",
+            example = "ivan.petrov@example.com",
+            requiredMode = Schema.RequiredMode.REQUIRED
+    )
+    @NotBlank(message = "Email is required")
+    @Pattern(
+            regexp = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$",
+            message = "Email should be valid (example: user@domain.com)"
+    )
+    private String email;
+
+    @Schema(
             description = "6-digit verification code from email",
             example = "123456",
             requiredMode = Schema.RequiredMode.REQUIRED,

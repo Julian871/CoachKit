@@ -38,7 +38,11 @@ public interface AuthService {
 
     AuthResponse getCurrentUser(UUID userId);
 
-    MessageResponse verifyEmail(UUID userId, String code);
+    /**
+     * Verifies email using code from email link.
+     * Public endpoint - no authentication required.
+     */
+    MessageResponse verifyEmail(String email, String code);
 
     MessageResponse resendVerification(UUID userId, String deviceName);
 

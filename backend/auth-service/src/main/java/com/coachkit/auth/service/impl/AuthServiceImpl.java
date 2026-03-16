@@ -142,13 +142,17 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public MessageResponse verifyEmail(UUID userId, String code) {
-        boolean verified = verificationService.verifyEmail(userId, code);
+    public MessageResponse verifyEmail(String email, String code) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AuthException("User not found", HttpStatus.NOT_FOUND));
+
+        boolean verified = verificationService.verifyEmail(user.getId(), code);
 
         if (!verified) {
             throw new AuthException("Invalid or expired verification code", HttpStatus.BAD_REQUEST);
         }
 
+        log.info("Email verified successfully for user: {}", email);
         return new MessageResponse("Email verified successfully");
     }
 

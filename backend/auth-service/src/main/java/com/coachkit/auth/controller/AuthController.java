@@ -155,21 +155,20 @@ public class AuthController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/verify-email")
-    @Operation(summary = "Verify email with code", description = "Requires authentication")
+    @GetMapping("/verify-email")
+    @Operation(summary = "Verify email with code (from email link)",
+            description = "Public endpoint for email verification links")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Email verified successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid or expired code"),
-            @ApiResponse(responseCode = "401", description = "Not authenticated")
+            @ApiResponse(responseCode = "404", description = "User not found")
     })
     public ResponseEntity<MessageResponse> verifyEmail(
-            @Valid @RequestBody VerifyEmailRequest request,
-            @RequestHeader("Authorization") String authHeader) {
+            @RequestParam String email,
+            @RequestParam String code) {
 
-        String accessToken = extractBearerToken(authHeader);
-        UUID userId = jwtService.validateAccessToken(accessToken);
-
-        return ResponseEntity.ok(authService.verifyEmail(userId, request.getCode()));
+        log.debug("Email verification attempt for: {}", email);
+        return ResponseEntity.ok(authService.verifyEmail(email, code));
     }
 
     @PostMapping("/resend-verification")
