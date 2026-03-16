@@ -156,19 +156,17 @@ public class AuthController {
     }
 
     @GetMapping("/verify-email")
-    @Operation(summary = "Verify email with code (from email link)",
+    @Operation(summary = "Verify email with code",
             description = "Public endpoint for email verification links")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Email verified successfully"),
-            @ApiResponse(responseCode = "400", description = "Invalid or expired code"),
+            @ApiResponse(responseCode = "400", description = "Invalid parameters"),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     public ResponseEntity<MessageResponse> verifyEmail(
-            @RequestParam String email,
-            @RequestParam String code) {
+            @Valid VerifyEmailGetRequest request) {
 
-        log.debug("Email verification attempt for: {}", email);
-        return ResponseEntity.ok(authService.verifyEmail(email, code));
+        return ResponseEntity.ok(authService.verifyEmail(request.getEmail(), request.getCode()));
     }
 
     @PostMapping("/resend-verification")

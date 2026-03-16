@@ -5,9 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
-@Schema(description = "Email verification request with 6-digit code")
+@Schema(description = "Email verification request from GET link")
 @Data
-public class VerifyEmailRequest {
+public class VerifyEmailGetRequest {
 
     @Schema(
             description = "User email address",
@@ -24,9 +24,7 @@ public class VerifyEmailRequest {
     @Schema(
             description = "6-digit verification code from email",
             example = "123456",
-            requiredMode = Schema.RequiredMode.REQUIRED,
-            minLength = 6,
-            maxLength = 6
+            requiredMode = Schema.RequiredMode.REQUIRED
     )
     @NotBlank(message = "Verification code is required")
     @Pattern(regexp = "^\\d{6}$", message = "Code must be exactly 6 digits")
