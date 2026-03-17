@@ -20,7 +20,9 @@ spring:
           globalcors:
             cors-configurations:
               '[/**]':
-                allowedOrigins: "*"
+                allowedOrigins:
+                  - "http://localhost:5173"
+                  - "http://localhost:4173"
                 allowedMethods:
                   - GET
                   - POST
@@ -28,7 +30,7 @@ spring:
                   - DELETE
                   - OPTIONS
                 allowedHeaders: "*"
-                allowCredentials: false
+                allowCredentials: true
                 maxAge: 3600
 
           routes:
