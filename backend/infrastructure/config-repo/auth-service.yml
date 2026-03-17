@@ -50,11 +50,7 @@ eureka:
 management:
   endpoints:
     web:
-      exposure:
-        include: health,info
-  endpoint:
-    health:
-      show-details: always
+      base-path: /actuator
 
 # Custom properties for auth service
 coachkit:
@@ -81,16 +77,15 @@ coachkit:
 
 logging:
   level:
-    com.coachkit.auth: INFO
-    org.springframework.security: DEBUG
+    com.coachkit.auth: DEBUG
+    org.springframework.security: INFO
 
 # Swagger/OpenAPI configuration
 springdoc:
   api-docs:
     enabled: true
+    path: /api-docs
   swagger-ui:
     enabled: true
     path: /swagger-ui.html
-    operations-sorter: method
-    tags-sorter: alpha
   packages-to-scan: com.coachkit.auth.controller

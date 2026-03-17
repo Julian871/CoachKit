@@ -42,8 +42,9 @@ management:
   endpoint:
     health:
       show-details: when-authorized
-  server:
-    port: 8081
+  metrics:
+    export:
+      enabled: false
 
 logging:
   level:
