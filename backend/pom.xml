@@ -21,6 +21,7 @@
         <module>config-server</module>
         <module>eureka-server</module>
         <module>auth-service</module>
+        <module>gateway</module>
     </modules>
 
     <properties>
@@ -38,7 +39,6 @@
                 <scope>import</scope>
             </dependency>
 
-            <!-- Logstash Logback Encoder для JSON формата -->
             <dependency>
                 <groupId>net.logstash.logback</groupId>
                 <artifactId>logstash-logback-encoder</artifactId>
