@@ -52,7 +52,7 @@ management:
     web:
       base-path: /actuator
       exposure:
-        include: health,info,metrics
+        include: health,info,metrics,prometheus
   endpoint:
     health:
       show-details: always
@@ -81,9 +81,15 @@ coachkit:
       ttl-minutes: 60
 
 logging:
+  file:
+    path: /var/log/auth-service
   level:
     com.coachkit.auth: DEBUG
     org.springframework.security: INFO
+    org.springframework.cloud: INFO
+    com.netflix: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} | ${spring.application.name} | %thread | %-5level | %logger{36} - %msg%n"
 
 # Swagger/OpenAPI configuration
 springdoc:
