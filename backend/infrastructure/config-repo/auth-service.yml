@@ -95,8 +95,8 @@ logging:
 springdoc:
   api-docs:
     enabled: true
-    path: /api-docs
   swagger-ui:
     enabled: true
     path: /swagger-ui.html
   packages-to-scan: com.coachkit.auth.controller
+  paths-to-match: /**
