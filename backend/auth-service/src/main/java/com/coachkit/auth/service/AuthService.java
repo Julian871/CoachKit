@@ -41,8 +41,9 @@ public interface AuthService {
     /**
      * Verifies email using code from email link.
      * Public endpoint - no authentication required.
+     * Returns LoginResult to automatically log in the user after verification.
      */
-    MessageResponse verifyEmail(String email, String code);
+    LoginResult verifyEmail(String email, String code, String deviceName, String ip, String userAgent);
 
     MessageResponse resendVerification(UUID userId, String deviceName);
 

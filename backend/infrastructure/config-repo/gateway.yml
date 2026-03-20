@@ -10,6 +10,10 @@ spring:
 
   cloud:
     gateway:
+      httpclient:
+        connect-timeout: 5000
+        response-timeout: 10s
+
       server:
         webflux:
           discovery:
@@ -103,3 +107,35 @@ logging:
     org.springframework.cloud.gateway: INFO
   pattern:
     console: "%d{HH:mm:ss} %-5level %msg%n"
+
+# Resilience4j Circuit Breaker и TimeLimiter конфигурация
+resilience4j:
+  timelimiter:
+    configs:
+      default:
+        timeoutDuration: 10s
+        cancelRunningFuture: true
+    instances:
+      authServiceCB:
+        baseConfig: default
+      coreServiceCB:
+        baseConfig: default
+      notificationServiceCB:
+        baseConfig: default
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        slowCallDurationThreshold: 5s
+        slowCallRateThreshold: 50
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+    instances:
+      authServiceCB:
+        baseConfig: default
+      coreServiceCB:
+        baseConfig: default
+      notificationServiceCB:
+        baseConfig: default

@@ -24,7 +24,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Duration;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -163,10 +162,26 @@ public class AuthController {
             @ApiResponse(responseCode = "400", description = "Invalid parameters"),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
-    public ResponseEntity<MessageResponse> verifyEmail(
-            @Valid VerifyEmailGetRequest request) {
+    public ResponseEntity<AuthResponse> verifyEmail(
+            @Valid VerifyEmailGetRequest request,
+            @RequestHeader(value = "X-Device-Name", required = false) String deviceName,
+            HttpServletRequest httpRequest,
+            HttpServletResponse httpResponse) {
 
-        return ResponseEntity.ok(authService.verifyEmail(request.getEmail(), request.getCode()));
+        String ip = httpRequest.getRemoteAddr();
+        String userAgent = httpRequest.getHeader("User-Agent");
+
+        LoginResult result = authService.verifyEmail(
+                request.getEmail(),
+                request.getCode(),
+                deviceName,
+                ip,
+                userAgent
+        );
+
+        setRefreshCookie(httpResponse, result.refreshToken());
+
+        return ResponseEntity.ok(result.userInfo());
     }
 
     @PostMapping("/resend-verification")

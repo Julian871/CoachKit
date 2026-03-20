@@ -42,7 +42,14 @@ management:
         include: health,info,metrics
   endpoint:
     health:
-      show-details: when-authorized
+      show-details: always
+      probes:
+        enabled: true
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
   metrics:
     export:
       enabled: false
@@ -51,3 +58,4 @@ logging:
   level:
     root: INFO
     com.coachkit: DEBUG
+    com.coachkit.auth.config.LoggingFilter: WARN

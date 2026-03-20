@@ -60,9 +60,9 @@ public class LoggingFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        return path.startsWith("/actuator") ||
-                path.startsWith("/swagger") ||
-                path.startsWith("/v3/api-docs");
+        return path.contains("/actuator/") ||
+                path.contains("/swagger") ||
+                path.contains("/api-docs");
     }
 
     private String getClientIp(HttpServletRequest request) {

@@ -142,7 +142,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public MessageResponse verifyEmail(String email, String code) {
+    public LoginResult verifyEmail(String email, String code, String deviceName, String ip, String userAgent) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new AuthException("User not found", HttpStatus.NOT_FOUND));
 
@@ -152,8 +152,20 @@ public class AuthServiceImpl implements AuthService {
             throw new AuthException("Invalid or expired verification code", HttpStatus.BAD_REQUEST);
         }
 
+        // Create session and tokens after successful verification
+        String refreshToken = sessionService.createSession(user, deviceName, ip, userAgent);
+        String accessToken = jwtService.generateAccessToken(user.getId(), user.getEmail());
+
+        AuthResponse userInfo = new AuthResponse();
+        userInfo.setAccessToken(accessToken);
+        userInfo.setTokenType("Bearer");
+        userInfo.setUserId(user.getId());
+        userInfo.setEmail(user.getEmail());
+        userInfo.setName(user.getName());
+        userInfo.setEmailVerified(true);
+
         log.info("Email verified successfully for user: {}", email);
-        return new MessageResponse("Email verified successfully");
+        return new LoginResult(accessToken, refreshToken, userInfo);
     }
 
     @Override
