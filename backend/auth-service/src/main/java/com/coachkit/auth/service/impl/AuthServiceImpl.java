@@ -67,6 +67,10 @@ public class AuthServiceImpl implements AuthService {
             throw new AuthException("Invalid email or password", HttpStatus.UNAUTHORIZED);
         }
 
+        if (!user.isEmailVerified()) {
+            throw new AuthException("Email not verified", HttpStatus.FORBIDDEN);
+        }
+
         String refreshToken = sessionService.createSession(user, deviceName, ip, userAgent);
         String accessToken = jwtService.generateAccessToken(user.getId(), user.getEmail());
 
