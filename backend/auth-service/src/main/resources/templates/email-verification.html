@@ -1,259 +1,143 @@
 <!DOCTYPE html>
-<html lang="ru" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="color-scheme" content="light dark">
-    <meta name="supported-color-schemes" content="light dark">
-    <title>Подтверждение email — CoachKit</title>
-    <!--[if mso]>
-    <noscript>
-        <xml>
-            <o:OfficeDocumentSettings>
-                <o:PixelsPerInch>96</o:PixelsPerInch>
-            </o:OfficeDocumentSettings>
-        </xml>
-    </noscript>
-    <![endif]-->
+    <title>Подтверждение аккаунта — CoachKit</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #312e81 0%, #5b21b6 100%);
-            color: #1e293b;
-            line-height: 1.6;
+            margin: 0;
+            padding: 60px 20px;
+            background-color: #fafafa;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             -webkit-font-smoothing: antialiased;
-            padding: 40px 20px;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        .email-wrapper {
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: #0f172a;
-            border-radius: 24px;
-            overflow: hidden;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        @media screen and (min-width: 601px) {
+            .btn-primary:hover {
+                transform: translateY(-2px) !important;
+                box-shadow: 0 20px 40px -10px rgba(109, 40, 217, 0.5) !important;
+            }
+            .glass-card:hover {
+                border-color: rgba(147, 51, 234, 0.4) !important;
+                box-shadow: 0 20px 40px -15px rgba(109, 40, 217, 0.2) !important;
+            }
         }
 
-        /* Header */
-        .header {
-            background: linear-gradient(135deg, #4c1d95 0%, #6d28d9 50%, #8b5cf6 100%);
-            padding: 48px 40px;
-            text-align: center;
-            border-bottom: 4px solid #c4b5fd;
-        }
-
-        .brand-name {
-            font-size: 36px;
-            font-weight: 700;
-            color: #ffffff;
-            letter-spacing: 2px;
-            text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Content */
-        .content {
-            padding: 48px 40px;
-            text-align: center;
-            background-color: #0f172a;
-        }
-
-        .greeting {
-            font-size: 24px;
-            font-weight: 400;
-            color: #f1f5f9;
-            margin-bottom: 24px;
-        }
-
-        .greeting strong {
-            font-weight: 700;
-            color: #c4b5fd;
-        }
-
-        .message {
-            font-size: 16px;
-            color: #94a3b8;
-            margin-bottom: 32px;
-            line-height: 1.7;
-        }
-
-        /* CTA Button */
-        .cta-container {
-            margin: 40px 0;
-        }
-
-        .cta-button {
-            display: inline-block;
-            padding: 18px 48px;
-            background: linear-gradient(135deg, #6d28d9 0%, #4c1d95 100%);
-            border-radius: 12px;
-            color: #ffffff;
-            font-family: 'Inter', sans-serif;
-            font-size: 16px;
-            font-weight: 600;
-            text-decoration: none;
-            box-shadow: 0 8px 16px rgba(76, 29, 149, 0.5);
-            border: 2px solid #c4b5fd;
-            transition: all 0.3s ease;
-        }
-
-        .cta-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 24px rgba(76, 29, 149, 0.6);
-        }
-
-        /* Timer */
-        .timer-box {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            border-radius: 16px;
-            padding: 24px;
-            margin-top: 32px;
-            border: 2px solid #4c1d95;
-        }
-
-        .timer-text {
-            font-size: 15px;
-            color: #94a3b8;
-        }
-
-        .timer-text strong {
-            color: #c4b5fd;
-            font-weight: 700;
-            font-size: 18px;
-        }
-
-        /* Divider */
-        .divider {
-            height: 2px;
-            background: linear-gradient(to right, transparent, #4c1d95, #8b5cf6, #4c1d95, transparent);
-            margin: 32px 0;
-        }
-
-        /* Security */
-        .security {
-            font-size: 14px;
-            color: #64748b;
-            line-height: 1.6;
-            background-color: #1e293b;
-            padding: 16px;
-            border-radius: 12px;
-            border-left: 4px solid #8b5cf6;
-        }
-
-        /* Footer */
-        .footer {
-            text-align: center;
-            padding: 32px 40px;
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            border-top: 2px solid #4c1d95;
-        }
-
-        .footer-brand {
-            font-size: 20px;
-            font-weight: 700;
-            color: #c4b5fd;
-            margin-bottom: 16px;
-            letter-spacing: 1px;
-        }
-
-        .footer-links {
-            margin-bottom: 16px;
-        }
-
-        .footer-links a {
-            color: #94a3b8;
-            text-decoration: none;
-            font-size: 14px;
-            margin: 0 12px;
-            font-weight: 500;
-        }
-
-        .footer-links a:hover {
-            color: #c4b5fd;
-        }
-
-        .footer-copy {
-            font-size: 13px;
-            color: #64748b;
-        }
-
-        /* Mobile */
         @media screen and (max-width: 600px) {
-            body {
-                padding: 20px 16px;
-            }
-            .header {
-                padding: 32px 24px;
-            }
-            .content {
-                padding: 32px 24px;
-            }
-            .footer {
-                padding: 24px;
-            }
-            .cta-button {
-                width: 100%;
-                padding: 18px 24px;
-            }
+            body { padding: 40px 16px !important; }
+            .content-wrapper { padding: 48px 32px !important; }
+            .premium-heading { font-size: 32px !important; }
+            .urgency-banner { padding: 20px !important; }
         }
     </style>
 </head>
 <body>
-<div class="email-wrapper">
-    <!-- Header -->
-    <div class="header">
-        <div class="brand-name">CoachKit</div>
-    </div>
+<center style="width: 100%;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 520px; margin: 0 auto; background: #ffffff; border-radius: 32px; border: 1px solid #f1f5f9; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02), 0 10px 15px -3px rgba(0,0,0,0.05), 0 0 0 1px rgba(0,0,0,0.01);">
 
-    <!-- Content -->
-    <div class="content">
-        <div class="greeting">
-            Здравствуйте, <strong>${userName}</strong>
-        </div>
+        <tr>
+            <td align="center" style="padding: 56px 48px 32px 48px;">
+                <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #6d28d9 0%, #4c1d95 100%); border-radius: 20px; display: inline-block; text-align: center; line-height: 56px; margin-bottom: 16px;">
+                    <span style="font-size: 34px; font-weight: 700; color: white;">C</span>
+                </div>
 
-        <div class="message">
-            Для подтверждения email адреса, нажмите кнопку ниже.
-        </div>
+                <h1 class="premium-heading" style="font-size: 36px; font-weight: 700; background: linear-gradient(135deg, #1e1b4b 0%, #4c1d95 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: -0.02em; margin: 0 0 12px 0; line-height: 1.1;">
+                    CoachKit
+                </h1>
+            </td>
+        </tr>
 
-        <div class="cta-container">
-            <a href="${verificationLink}" class="cta-button">Подтвердить email</a>
-        </div>
+        <tr>
+            <td class="content-wrapper" style="padding: 0 48px 48px 48px;">
 
-        <div class="timer-box">
-            <div class="timer-text">
-                Ссылка действительна <strong>15 минут</strong>
-            </div>
-        </div>
+                <p style="font-size: 20px; font-weight: 600; color: #0f172a; margin: 0 0 8px 0; letter-spacing: -0.01em; text-align: center;">
+                    Здравствуйте, <span style="color: #6d28d9; font-weight: 700;">${userName}</span>
+                </p>
 
-        <div class="divider"></div>
+                <p style="font-size: 16px; color: #475569; line-height: 1.7; margin: 0 0 40px 0; text-align: center;">
+                    Для активации аккаунта и настройки персональной панели тренера требуется подтверждение адреса электронной почты.
+                </p>
 
-        <div class="security">
-            <strong>🔒 Безопасность:</strong> Если вы не регистрировались в CoachKit, просто проигнорируйте это письмо.<br>
-            Никогда не передавайте ссылку для подтверждения третьим лицам.
-        </div>
-    </div>
+                <table class="glass-card" width="100%" cellpadding="0" cellspacing="0" border="0" style="background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.9) 100%); border: 1px solid rgba(147, 51, 234, 0.15); border-radius: 24px; margin: 0 0 32px 0; box-shadow: 0 10px 30px -10px rgba(109, 40, 217, 0.15); transition: all 0.3s ease;">
+                    <tr>
+                        <td style="padding: 40px 32px; text-align: center;">
+                            <p style="font-size: 14px; color: #6d28d9; font-weight: 600; margin: 0 0 20px 0; letter-spacing: 0.05em; text-transform: uppercase;">Безопасность аккаунта</p>
 
-    <!-- Footer -->
-    <div class="footer">
-        <div class="footer-brand">CoachKit</div>
+                            <table align="center" cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;">
+                                <tr>
+                                    <td>
+                                        <a href="${verificationUrl}" class="btn-primary" style="display: inline-block; padding: 18px 40px; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 50%, #5b21b6 100%); color: #ffffff; text-decoration: none; border-radius: 14px; font-weight: 600; font-size: 16px; letter-spacing: 0.01em; box-shadow: 0 10px 30px -8px rgba(109, 40, 217, 0.45), 0 0 0 1px rgba(255,255,255,0.2) inset; border: 1px solid rgba(147, 51, 234, 0.3); transition: all 0.3s ease;">
+                                            Подтвердить email
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
 
-        <div class="footer-links">
-            <a href="#">Поддержка</a>
-            <a href="#">Конфиденциальность</a>
-        </div>
+                            <p style="font-size: 13px; color: #94a3b8; margin: 20px 0 0 0; font-style: italic;">
+                                Или скопируйте: <span style="color: #6d28d9; font-weight: 500;">${verificationUrl}</span>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
 
-        <div class="footer-copy">
-            © 2026 CoachKit. Все права защищены.
-        </div>
-    </div>
-</div>
+                <table class="urgency-banner" width="100%" cellpadding="0" cellspacing="0" border="0" style="background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%); border-left: 4px solid #eab308; border-radius: 16px; margin: 32px 0;">
+                    <tr>
+                        <td style="padding: 24px; text-align: center;">
+                            <p style="font-size: 15px; color: #854d0e; margin: 0; font-weight: 600; line-height: 1.5;">
+                                ⚡️ Не откладывайте — ссылка действительна только <span style="color: #ca8a04; border-bottom: 1px dashed #ca8a04;">15 минут</span> в целях безопасности
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 40px 0 0 0; border-top: 1px solid #f1f5f9; padding-top: 32px;">
+                    <tr>
+                        <td style="text-align: center;">
+                            <div style="display: inline-block; padding: 8px 16px; background: #f8fafc; border-radius: 100px; border: 1px solid #e2e8f0;">
+                                    <span style="font-size: 13px; color: #475569; font-weight: 500;">
+                                        <span style="color: #10b981; font-weight: 700; margin-right: 6px;">✓</span>
+                                        SSL-защита данных
+                                    </span>
+                            </div>
+                            <p style="font-size: 12px; color: #94a3b8; margin: 20px 0 0 0; line-height: 1.5;">
+                                Если вы не регистрировались в CoachKit, просто проигнорируйте это письмо.<br>
+                                Мы никогда не запрашиваем пароль по email.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+
+            </td>
+        </tr>
+
+        <tr>
+            <td style="padding: 0 48px 40px 48px;">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top: 1px solid #f1f5f9; padding-top: 32px;">
+                    <tr>
+                        <td align="center">
+                            <p style="font-size: 14px; font-weight: 700; color: #1e293b; margin: 0 0 8px 0; letter-spacing: -0.01em;">CoachKit</p>
+                            <p style="font-size: 12px; color: #94a3b8; margin: 0; letter-spacing: 0.02em;">
+                                Платформа для профессиональных тренеров
+                            </p>
+                            <table cellpadding="0" cellspacing="0" border="0" style="margin: 20px auto 0 auto;">
+                                <tr>
+                                    <td style="padding: 0 12px;"><a href="http://localhost:5173/login" style="color: #cbd5e1; text-decoration: none; font-size: 12px;">Войти</a></td>
+                                    <td style="padding: 0 12px;"><a href="#" style="color: #cbd5e1; text-decoration: none; font-size: 12px;">Поддержка</a></td>
+                                    <td style="padding: 0 12px;"><a href="#" style="color: #cbd5e1; text-decoration: none; font-size: 12px;">Конфиденциальность</a></td>
+                                </tr>
+                            </table>
+                            <p style="font-size: 11px; color: #cbd5e1; margin: 24px 0 0 0; letter-spacing: 0.05em;">
+                                © 2026 CoachKit. Все права защищены.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</center>
 </body>
 </html>

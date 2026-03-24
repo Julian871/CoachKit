@@ -37,14 +37,14 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendVerificationEmail(String toEmail, String userName, String code) {
         try {
-            String verificationLink = "http://localhost:8081/api/v1/auth/verify-email?" +
+            String verificationLink = "http://localhost:5173/verify-email?" +
                     "email=" + toEmail +
                     "&code=" + code;
 
             String template = loadTemplate("email-verification.html");
             String content = template
                     .replace("${userName}", userName)
-                    .replace("${verificationLink}", verificationLink);
+                    .replace("${verificationUrl}", verificationLink);
 
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");

@@ -192,13 +192,10 @@ public class AuthController {
             @ApiResponse(responseCode = "429", description = "Too many requests")
     })
     public ResponseEntity<MessageResponse> resendVerification(
-            @RequestHeader("Authorization") String authHeader,
+            @RequestBody ResendVerificationRequest request,
             @RequestHeader(value = "X-Device-Name", required = false) String deviceName) {
 
-        String accessToken = extractBearerToken(authHeader);
-        UUID userId = jwtService.validateAccessToken(accessToken);
-
-        return ResponseEntity.ok(authService.resendVerification(userId, deviceName));
+        return ResponseEntity.ok(authService.resendVerification(request.getEmail(), deviceName));
     }
 
     @PostMapping("/forgot-password")

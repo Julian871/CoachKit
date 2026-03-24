@@ -1,10 +1,18 @@
 package com.coachkit.auth.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
-@Schema(description = "Request to resend verification email (no body needed, user from token)")
+@Schema(description = "Request to resend verification email")
 @Data
 public class ResendVerificationRequest {
-    // Empty - user identified from Authorization header
+    @Schema(
+            description = "User email",
+            example = "ivan.petrov@example.com",
+            requiredMode = Schema.RequiredMode.REQUIRED,
+            format = "email"
+    )
+    @NotBlank(message = "Email is required")
+    private String email;
 }

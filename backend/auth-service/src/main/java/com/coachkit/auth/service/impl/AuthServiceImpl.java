@@ -170,14 +170,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public MessageResponse resendVerification(UUID userId, String deviceName) {
-        // Rate limit: 1 request per minute per user
-        String rateLimitKey = "resend_verification:" + userId;
-        if (!rateLimitService.tryAcquire(rateLimitKey, 1, Duration.ofMinutes(1))) {
-            throw new AuthException("Please wait before requesting another code", HttpStatus.TOO_MANY_REQUESTS);
-        }
+    public MessageResponse resendVerification(String email, String deviceName) {
 
-        User user = userRepository.findById(userId)
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new AuthException("User not found", HttpStatus.UNAUTHORIZED));
 
         if (user.isEmailVerified()) {
