@@ -37,7 +37,7 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendVerificationEmail(String toEmail, String userName, String code) {
         try {
-            String verificationLink = "http://localhost:5173/verify-email?" +
+            String verificationLink = "http://192.168.100.6:5173/verify-email?" +
                     "email=" + toEmail +
                     "&code=" + code;
 
