@@ -5,22 +5,60 @@ import { Mail, Lock, ArrowRight, AlertCircle, Eye, EyeOff } from 'lucide-react'
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' })
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({})
+  const [touched, setTouched] = useState<{ email: boolean; password: boolean }>({
+    email: false,
+    password: false
+  })
   const [showPassword, setShowPassword] = useState(false)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [serverError, setServerError] = useState<string | null>(null)
   const { login, isLoggingIn } = useAuth()
   const navigate = useNavigate()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setErrorMessage(null)
+  const validateField = (name: string, value: string) => {
+    switch (name) {
+      case 'email':
+        if (!value) return 'Введите email'
+        if (!value.includes('@') || !value.includes('.')) return 'Введите корректный email адрес'
+        return ''
+      case 'password':
+        if (!value) return 'Введите пароль'
+        return ''
+      default:
+        return ''
+    }
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
     
-    if (!formData.email.includes('@') || !formData.email.includes('.')) {
-      setErrorMessage('Введите корректный email адрес')
-      return
+    if (touched[name as keyof typeof touched]) {
+      const error = validateField(name, value)
+      setErrors(prev => ({ ...prev, [name]: error }))
+    }
+  }
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setTouched(prev => ({ ...prev, [name]: true }))
+    const error = validateField(name, value)
+    setErrors(prev => ({ ...prev, [name]: error }))
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setServerError(null)
+    
+    const newErrors = {
+      email: validateField('email', formData.email),
+      password: validateField('password', formData.password)
     }
     
-    if (formData.password.length < 1) {
-      setErrorMessage('Введите пароль')
+    setErrors(newErrors)
+    setTouched({ email: true, password: true })
+    
+    if (newErrors.email || newErrors.password) {
       return
     }
     
@@ -29,35 +67,38 @@ const Login = () => {
         navigate('/dashboard')
       },
       onError: (error: any) => {
-        console.error('Login error:', error)
-        
         const status = error.response?.status
         const message = error.response?.data?.message
         
-        
         if (status === 401) {
-          if (message === "Invalid email or password") {
-            setErrorMessage('Неверный email или пароль')
-          } else {
-            setErrorMessage('Неверный email или пароль')
-          }
+          setErrors({
+            email: 'Неверный email или пароль',
+            password: 'Неверный email или пароль'
+          })
         } else if (status === 403) {
-          if (message === "Email not verified") {
-            setErrorMessage('Email не подтверждён. Пожалуйста, проверьте почту и подтвердите аккаунт')
-          } else if (message === "Account deactivated") {
-            setErrorMessage('Аккаунт деактивирован. Обратитесь в поддержку')
+          if (message === 'Email not verified') {
+            setServerError('Email не подтверждён. Пожалуйста, проверьте почту и подтвердите аккаунт')
+          } else if (message === 'Account deactivated') {
+            setServerError('Аккаунт деактивирован. Обратитесь в поддержку')
           } else {
-            setErrorMessage('Доступ запрещён')
+            setServerError('Доступ запрещён')
           }
         } else if (status === 429) {
-          setErrorMessage('Слишком много попыток. Попробуйте позже')
+          setServerError('Слишком много попыток. Попробуйте позже')
         } else if (message) {
-          setErrorMessage(message)
+          setServerError(message)
         } else {
-          setErrorMessage('Ошибка входа. Попробуйте позже')
+          setServerError('Ошибка входа. Попробуйте позже')
         }
       }
     })
+  }
+
+  const getInputClassName = (fieldName: string) => {
+    const hasError = errors[fieldName as keyof typeof errors] && touched[fieldName as keyof typeof touched]
+    return `input-field pl-12 ${fieldName === 'password' ? 'pr-12' : ''} ${
+      hasError ? 'border-red-500 focus:border-red-500 ring-red-500/30' : ''
+    }`
   }
 
   return (
@@ -71,10 +112,10 @@ const Login = () => {
           <p className="text-purple-200/60">Добро пожаловать!</p>
         </div>
 
-        {errorMessage && (
+        {serverError && (
           <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-            <p className="text-red-400 text-sm">{errorMessage}</p>
+            <p className="text-red-400 text-sm">{serverError}</p>
           </div>
         )}
 
@@ -85,13 +126,21 @@ const Login = () => {
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
               <input
                 type="email"
+                name="email"
                 placeholder="example@coachkit.ru"
-                className="input-field pl-12"
+                className={getInputClassName('email')}
                 required
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={handleChange}
+                onBlur={handleBlur}
               />
             </div>
+            {touched.email && errors.email && (
+              <p className="text-red-400 text-xs mt-1 ml-1 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" />
+                {errors.email}
+              </p>
+            )}
           </div>
 
           <div>
@@ -105,11 +154,13 @@ const Login = () => {
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
               <input
                 type={showPassword ? 'text' : 'password'}
+                name="password"
                 placeholder="••••••••"
-                className="input-field pl-12 pr-12"
+                className={getInputClassName('password')}
                 required
                 value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                onChange={handleChange}
+                onBlur={handleBlur}
               />
               <button
                 type="button"
@@ -119,6 +170,12 @@ const Login = () => {
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
+            {touched.password && errors.password && (
+              <p className="text-red-400 text-xs mt-1 ml-1 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" />
+                {errors.password}
+              </p>
+            )}
           </div>
 
           <button

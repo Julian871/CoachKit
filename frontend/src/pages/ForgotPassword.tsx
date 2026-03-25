@@ -5,16 +5,39 @@ import { forgotPassword } from '../api/authApi'
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('')
+  const [error, setError] = useState<string>('')
+  const [touched, setTouched] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [serverError, setServerError] = useState<string | null>(null)
   const navigate = useNavigate()
+
+  const validateEmail = (value: string) => {
+    if (!value) return 'Введите email'
+    if (!value.includes('@') || !value.includes('.')) return 'Введите корректный email адрес'
+    return ''
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setEmail(value)
+    if (touched) {
+      setError(validateEmail(value))
+    }
+  }
+
+  const handleBlur = () => {
+    setTouched(true)
+    setError(validateEmail(email))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setErrorMessage(null)
+    setServerError(null)
     
-    if (!email.includes('@') || !email.includes('.')) {
-      setErrorMessage('Введите корректный email адрес')
+    const validationError = validateEmail(email)
+    if (validationError) {
+      setError(validationError)
+      setTouched(true)
       return
     }
     
@@ -24,16 +47,17 @@ const ForgotPassword = () => {
       await forgotPassword(email)
       navigate('/forgot-password-sent', { state: { email } })
     } catch (error: any) {
-      console.error('Forgot password error:', error)
+      const status = error.response?.status
+      const message = error.response?.data?.message
       
-      if (error.response?.status === 429) {
-        setErrorMessage('Слишком много попыток. Попробуйте позже')
-      } else if (error.response?.status === 400) {
-        setErrorMessage('Неверный формат email')
-      } else if (error.response?.data?.message) {
-        setErrorMessage(error.response.data.message)
+      if (status === 429) {
+        setServerError('Слишком много попыток. Попробуйте позже')
+      } else if (status === 400) {
+        setError('Неверный формат email')
+      } else if (message) {
+        setServerError(message)
       } else {
-        setErrorMessage('Ошибка. Попробуйте позже')
+        setServerError('Ошибка. Попробуйте позже')
       }
     } finally {
       setIsLoading(false)
@@ -53,10 +77,10 @@ const ForgotPassword = () => {
           </p>
         </div>
 
-        {errorMessage && (
+        {serverError && (
           <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-            <p className="text-red-400 text-sm">{errorMessage}</p>
+            <p className="text-red-400 text-sm">{serverError}</p>
           </div>
         )}
 
@@ -68,12 +92,19 @@ const ForgotPassword = () => {
               <input
                 type="email"
                 placeholder="example@coachkit.ru"
-                className="input-field pl-12"
+                className={`input-field pl-12 ${touched && error ? 'border-red-500 focus:border-red-500 ring-red-500/30' : ''}`}
                 required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={handleChange}
+                onBlur={handleBlur}
               />
             </div>
+            {touched && error && (
+              <p className="text-red-400 text-xs mt-1 ml-1 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" />
+                {error}
+              </p>
+            )}
           </div>
 
           <button

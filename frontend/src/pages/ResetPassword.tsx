@@ -7,7 +7,6 @@ const ResetPassword = () => {
   const location = useLocation()
   const navigate = useNavigate()
   
-  // Email автоматически подставляется из state
   const [formData, setFormData] = useState({
     email: location.state?.email || '',
     code: '',
@@ -15,34 +14,85 @@ const ResetPassword = () => {
     confirmPassword: ''
   })
   
-  const [isLoading, setIsLoading] = useState(false)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [errors, setErrors] = useState<{
+    email?: string
+    code?: string
+    newPassword?: string
+    confirmPassword?: string
+  }>({})
   
-  // Состояния для показа/скрытия пароля
+  const [touched, setTouched] = useState({
+    email: false,
+    code: false,
+    newPassword: false,
+    confirmPassword: false
+  })
+  
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [serverError, setServerError] = useState<string | null>(null)
+
+  const validateField = (name: string, value: string) => {
+    switch (name) {
+      case 'email':
+        if (!value) return 'Введите email'
+        if (!value.includes('@') || !value.includes('.')) return 'Введите корректный email адрес'
+        return ''
+      case 'code':
+        if (!value) return 'Введите код из письма'
+        if (value.length !== 6) return 'Код должен состоять из 6 цифр'
+        return ''
+      case 'newPassword':
+        if (!value) return 'Введите новый пароль'
+        if (value.length < 8) return 'Пароль должен содержать минимум 8 символов'
+        return ''
+      case 'confirmPassword':
+        if (!value) return 'Подтвердите пароль'
+        if (value !== formData.newPassword) return 'Пароли не совпадают'
+        return ''
+      default:
+        return ''
+    }
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+    
+    if (touched[name as keyof typeof touched]) {
+      const error = validateField(name, value)
+      setErrors(prev => ({ ...prev, [name]: error }))
+    }
+  }
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setTouched(prev => ({ ...prev, [name]: true }))
+    const error = validateField(name, value)
+    setErrors(prev => ({ ...prev, [name]: error }))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setErrorMessage(null)
+    setServerError(null)
     
-    if (!formData.email) {
-      setErrorMessage('Email не найден. Пожалуйста, начните сброс пароля заново')
-      return
+    const newErrors = {
+      email: validateField('email', formData.email),
+      code: validateField('code', formData.code),
+      newPassword: validateField('newPassword', formData.newPassword),
+      confirmPassword: validateField('confirmPassword', formData.confirmPassword)
     }
     
-    if (!formData.code || formData.code.length !== 6) {
-      setErrorMessage('Введите 6-значный код из письма')
-      return
-    }
+    setErrors(newErrors)
+    setTouched({
+      email: true,
+      code: true,
+      newPassword: true,
+      confirmPassword: true
+    })
     
-    if (formData.newPassword.length < 8) {
-      setErrorMessage('Пароль должен содержать минимум 8 символов')
-      return
-    }
-    
-    if (formData.newPassword !== formData.confirmPassword) {
-      setErrorMessage('Пароли не совпадают')
+    if (newErrors.email || newErrors.code || newErrors.newPassword || newErrors.confirmPassword) {
       return
     }
     
@@ -56,20 +106,29 @@ const ResetPassword = () => {
       })
       navigate('/reset-password-success')
     } catch (error: any) {
-      console.error('Reset password error:', error)
+      const status = error.response?.status
+      const message = error.response?.data?.message
       
-      if (error.response?.status === 400) {
-        setErrorMessage('Неверный код или email')
-      } else if (error.response?.status === 429) {
-        setErrorMessage('Слишком много попыток. Попробуйте позже')
-      } else if (error.response?.data?.message) {
-        setErrorMessage(error.response.data.message)
+      if (status === 400) {
+        setErrors(prev => ({ ...prev, code: 'Неверный код или email' }))
+      } else if (status === 429) {
+        setServerError('Слишком много попыток. Попробуйте позже')
+      } else if (message) {
+        setServerError(message)
       } else {
-        setErrorMessage('Ошибка сброса пароля. Попробуйте позже')
+        setServerError('Ошибка сброса пароля. Попробуйте позже')
       }
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const getInputClassName = (fieldName: string) => {
+    const hasError = errors[fieldName as keyof typeof errors] && touched[fieldName as keyof typeof touched]
+    const hasEye = fieldName === 'newPassword' || fieldName === 'confirmPassword'
+    return `input-field pl-12 ${hasEye ? 'pr-12' : ''} ${
+      hasError ? 'border-red-500 focus:border-red-500 ring-red-500/30' : ''
+    }`
   }
 
   return (
@@ -85,21 +144,22 @@ const ResetPassword = () => {
           </p>
         </div>
 
-        {errorMessage && (
+        {serverError && (
           <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-            <p className="text-red-400 text-sm">{errorMessage}</p>
+            <p className="text-red-400 text-sm">{serverError}</p>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Email поле — только для чтения, автоматически подставляется */}
+          {/* Email Field - Readonly */}
           <div>
             <label className="text-sm font-medium text-purple-200 ml-1 mb-1 block">EMAIL</label>
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
               <input
                 type="email"
+                name="email"
                 className="input-field pl-12 bg-slate-900/30 text-slate-300 cursor-not-allowed"
                 required
                 value={formData.email}
@@ -114,37 +174,45 @@ const ResetPassword = () => {
             )}
           </div>
 
-          {/* Код из письма */}
+          {/* Code Field */}
           <div>
             <label className="text-sm font-medium text-purple-200 ml-1 mb-1 block">КОД ИЗ ПИСЬМА</label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
               <input
                 type="text"
+                name="code"
                 placeholder="123456"
-                className="input-field pl-12"
+                className={getInputClassName('code')}
                 required
                 maxLength={6}
                 value={formData.code}
-                onChange={(e) => setFormData({ ...formData, code: e.target.value.replace(/\D/g, '') })}
+                onChange={handleChange}
+                onBlur={handleBlur}
               />
             </div>
-            <p className="text-xs text-slate-500 mt-1 ml-1">6-значный код из письма</p>
+            {touched.code && errors.code && (
+              <p className="text-red-400 text-xs mt-1 ml-1 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" />
+                {errors.code}
+              </p>
+            )}
           </div>
 
-          {/* Новый пароль с глазком */}
+          {/* New Password Field */}
           <div>
             <label className="text-sm font-medium text-purple-200 ml-1 mb-1 block">НОВЫЙ ПАРОЛЬ</label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
               <input
                 type={showNewPassword ? 'text' : 'password'}
+                name="newPassword"
                 placeholder="минимум 8 символов"
-                className="input-field pl-12 pr-12"
+                className={getInputClassName('newPassword')}
                 required
-                minLength={8}
                 value={formData.newPassword}
-                onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
+                onChange={handleChange}
+                onBlur={handleBlur}
               />
               <button
                 type="button"
@@ -154,22 +222,30 @@ const ResetPassword = () => {
                 {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
-            <p className="text-xs text-slate-500 mt-1 ml-1">Минимум 8 символов</p>
+            {touched.newPassword && errors.newPassword ? (
+              <p className="text-red-400 text-xs mt-1 ml-1 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" />
+                {errors.newPassword}
+              </p>
+            ) : (
+              <p className="text-xs text-slate-500 mt-1 ml-1">Минимум 8 символов</p>
+            )}
           </div>
 
-          {/* Подтверждение пароля с глазком */}
+          {/* Confirm Password Field */}
           <div>
             <label className="text-sm font-medium text-purple-200 ml-1 mb-1 block">ПОДТВЕРДИТЕ ПАРОЛЬ</label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
               <input
                 type={showConfirmPassword ? 'text' : 'password'}
+                name="confirmPassword"
                 placeholder="повторите пароль"
-                className="input-field pl-12 pr-12"
+                className={getInputClassName('confirmPassword')}
                 required
-                minLength={8}
                 value={formData.confirmPassword}
-                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                onChange={handleChange}
+                onBlur={handleBlur}
               />
               <button
                 type="button"
@@ -179,6 +255,12 @@ const ResetPassword = () => {
                 {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
+            {touched.confirmPassword && errors.confirmPassword && (
+              <p className="text-red-400 text-xs mt-1 ml-1 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" />
+                {errors.confirmPassword}
+              </p>
+            )}
           </div>
 
           <button
@@ -194,7 +276,6 @@ const ResetPassword = () => {
             ) : (
               <>
                 Сбросить пароль
-                <ArrowRight className="w-5 h-5" />
               </>
             )}
           </button>

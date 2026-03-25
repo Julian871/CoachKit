@@ -5,33 +5,66 @@ import { User, Mail, Lock, ArrowRight, AlertCircle, Eye, EyeOff } from 'lucide-r
 
 const Register = () => {
   const [formData, setFormData] = useState({ name: '', email: '', password: '' })
+  const [errors, setErrors] = useState<{ name?: string; email?: string; password?: string }>({})
+  const [touched, setTouched] = useState<{ name: boolean; email: boolean; password: boolean }>({
+    name: false,
+    email: false,
+    password: false
+  })
   const [showPassword, setShowPassword] = useState(false)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [serverError, setServerError] = useState<string | null>(null)
   const { register, isRegistering } = useAuth()
   const navigate = useNavigate()
 
+  // Валидация поля
+  const validateField = (name: string, value: string) => {
+    switch (name) {
+      case 'name':
+        if (value.length < 2) return 'Имя должно содержать минимум 2 символа'
+        if (value.length > 30) return 'Имя должно содержать максимум 30 символов'
+        return ''
+      case 'email':
+        if (!value.includes('@') || !value.includes('.')) return 'Введите корректный email адрес'
+        return ''
+      case 'password':
+        if (value.length < 8) return 'Пароль должен содержать минимум 8 символов'
+        return ''
+      default:
+        return ''
+    }
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+    
+    if (touched[name as keyof typeof touched]) {
+      const error = validateField(name, value)
+      setErrors(prev => ({ ...prev, [name]: error }))
+    }
+  }
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setTouched(prev => ({ ...prev, [name]: true }))
+    const error = validateField(name, value)
+    setErrors(prev => ({ ...prev, [name]: error }))
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setErrorMessage(null)
+    setServerError(null)
     
-    // Валидация перед отправкой
-    if (formData.name.length < 2) {
-      setErrorMessage('Имя должно содержать минимум 2 символа')
-      return
+    const newErrors = {
+      name: validateField('name', formData.name),
+      email: validateField('email', formData.email),
+      password: validateField('password', formData.password)
     }
     
-    if (formData.name.length > 30) {
-      setErrorMessage('Имя должно содержать максимум 30 символов')
-      return
-    }
+    setErrors(newErrors)
+    setTouched({ name: true, email: true, password: true })
     
-    if (!formData.email.includes('@') || !formData.email.includes('.')) {
-      setErrorMessage('Введите корректный email адрес')
-      return
-    }
-    
-    if (formData.password.length < 8) {
-      setErrorMessage('Пароль должен содержать минимум 8 символов')
+    if (newErrors.name || newErrors.email || newErrors.password) {
       return
     }
     
@@ -44,18 +77,26 @@ const Register = () => {
         const message = error.response?.data?.message
         
         if (status === 409) {
-          setErrorMessage('Пользователь с таким email уже существует')
+          setErrors(prev => ({ ...prev, email: 'Пользователь с таким email уже существует' }))
+          setTouched(prev => ({ ...prev, email: true }))
         } else if (status === 400) {
-          setErrorMessage('Неверный формат данных. Проверьте введённые поля')
+          setServerError('Неверный формат данных. Проверьте введённые поля')
         } else if (status === 429) {
-          setErrorMessage('Слишком много попыток. Попробуйте позже')
+          setServerError('Слишком много попыток. Попробуйте позже')
         } else if (message) {
-          setErrorMessage(message)
+          setServerError(message)
         } else {
-          setErrorMessage('Ошибка регистрации. Попробуйте позже')
+          setServerError('Ошибка регистрации. Попробуйте позже')
         }
       }
     })
+  }
+
+  const getInputClassName = (fieldName: string) => {
+    const hasError = errors[fieldName as keyof typeof errors] && touched[fieldName as keyof typeof touched]
+    return `input-field pl-12 ${fieldName === 'password' ? 'pr-12' : ''} ${
+      hasError ? 'border-red-500 focus:border-red-500 ring-red-500/30' : ''
+    }`
   }
 
   return (
@@ -69,59 +110,80 @@ const Register = () => {
           <p className="text-purple-200/60">Присоединяйтесь к нашей платформе</p>
         </div>
 
-        {errorMessage && (
+        {/* Server Error */}
+        {serverError && (
           <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-            <p className="text-red-400 text-sm">{errorMessage}</p>
+            <p className="text-red-400 text-sm">{serverError}</p>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Name Field */}
           <div>
             <label className="text-sm font-medium text-purple-200 ml-1 mb-1 block">ИМЯ</label>
             <div className="relative">
               <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
               <input
                 type="text"
+                name="name"
                 placeholder="Татьяна"
-                className="input-field pl-12"
+                className={getInputClassName('name')}
                 required
-                minLength={2}
-                maxLength={30}
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={handleChange}
+                onBlur={handleBlur}
               />
             </div>
-            <p className="text-xs text-slate-500 mt-1 ml-1">От 2 до 30 символов</p>
+            {touched.name && errors.name && (
+              <p className="text-red-400 text-xs mt-1 ml-1 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" />
+                {errors.name}
+              </p>
+            )}
+            {!touched.name && (
+              <p className="text-xs text-slate-500 mt-1 ml-1">От 2 до 30 символов</p>
+            )}
           </div>
 
+          {/* Email Field */}
           <div>
             <label className="text-sm font-medium text-purple-200 ml-1 mb-1 block">EMAIL</label>
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
               <input
                 type="email"
+                name="email"
                 placeholder="example@coachkit.ru"
-                className="input-field pl-12"
+                className={getInputClassName('email')}
                 required
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={handleChange}
+                onBlur={handleBlur}
               />
             </div>
+            {touched.email && errors.email && (
+              <p className="text-red-400 text-xs mt-1 ml-1 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" />
+                {errors.email}
+              </p>
+            )}
           </div>
 
+          {/* Password Field */}
           <div>
             <label className="text-sm font-medium text-purple-200 ml-1 mb-1 block">ПАРОЛЬ</label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
               <input
                 type={showPassword ? 'text' : 'password'}
+                name="password"
                 placeholder="минимум 8 символов"
-                className="input-field pl-12 pr-12"
+                className={getInputClassName('password')}
                 required
-                minLength={8}
                 value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                onChange={handleChange}
+                onBlur={handleBlur}
               />
               <button
                 type="button"
@@ -131,7 +193,14 @@ const Register = () => {
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
-            <p className="text-xs text-slate-500 mt-1 ml-1">Минимум 8 символов</p>
+            {touched.password && errors.password ? (
+              <p className="text-red-400 text-xs mt-1 ml-1 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" />
+                {errors.password}
+              </p>
+            ) : (
+              <p className="text-xs text-slate-500 mt-1 ml-1">Минимум 8 символов</p>
+            )}
           </div>
 
           <button
