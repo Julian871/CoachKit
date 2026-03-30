@@ -4,3 +4,65 @@ server:
 spring:
   application:
     name: core-service
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/coachkit}
+    username: ${SPRING_DATASOURCE_USERNAME:coach}
+    password: ${SPRING_DATASOURCE_PASSWORD:coach}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: client
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: false
+
+  flyway:
+    enabled: true
+    default-schema: client
+    schemas: client
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+coachkit:
+  core:
+    jwt:
+      secret: ${JWT_SECRET}
+      access-token-ttl: 15m
+
+logging:
+  level:
+    com.coachkit.core: DEBUG
+    org.springframework.security: INFO
+    org.springframework.cloud: INFO
+    com.netflix: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} | ${spring.application.name} | %thread | %-5level | %logger{36} - %msg%n"
+
+# Swagger/OpenAPI configuration
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+  packages-to-scan: com.coachkit.core
+  paths-to-match: /**
