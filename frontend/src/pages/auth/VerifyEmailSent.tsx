@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Mail, LogIn, RefreshCw, AlertCircle } from 'lucide-react'
-import { resendVerification } from '../api/authApi'
+import { resendVerification } from '../../api/authApi'
 
 const VerifyEmailSent = () => {
   const location = useLocation()

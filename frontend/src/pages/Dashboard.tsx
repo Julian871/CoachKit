@@ -10,7 +10,9 @@ import {
   Dumbbell,
   ChevronRight,
   User as UserIcon,
-  Loader2
+  Loader2,
+  LayoutDashboardIcon,
+  Home
 } from 'lucide-react'
 
 const Dashboard = () => {
@@ -96,57 +98,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Quick Actions Section */}
-        <section className="space-y-4">
-          <div className="flex justify-between items-center px-1">
-            <h2 className="text-xl font-bold text-white">Быстрые действия</h2>
-            <button className="text-purple-400 text-sm font-medium hover:underline">
-              Все
-            </button>
-          </div>
-          
-          <div className="space-y-3">
-            <button className="w-full glass-card rounded-2xl p-4 flex items-center justify-between group hover:border-purple-500/30 transition-all">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center">
-                  <Users className="w-5 h-5 text-purple-400" />
-                </div>
-                <div className="text-left">
-                  <h3 className="text-white font-semibold">Добавить клиента</h3>
-                  <p className="text-slate-500 text-xs">Новый клиент в базу</p>
-                </div>
-              </div>
-              <ChevronRight className="w-5 h-5 text-slate-500 group-hover:text-purple-400 transition-colors" />
-            </button>
-
-            <button className="w-full glass-card rounded-2xl p-4 flex items-center justify-between group hover:border-purple-500/30 transition-all">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center">
-                  <Dumbbell className="w-5 h-5 text-purple-400" />
-                </div>
-                <div className="text-left">
-                  <h3 className="text-white font-semibold">Создать тренировку</h3>
-                  <p className="text-slate-500 text-xs">Новая тренировка для клиента</p>
-                </div>
-              </div>
-              <ChevronRight className="w-5 h-5 text-slate-500 group-hover:text-purple-400 transition-colors" />
-            </button>
-
-            <button className="w-full glass-card rounded-2xl p-4 flex items-center justify-between group hover:border-purple-500/30 transition-all">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center">
-                  <Calendar className="w-5 h-5 text-purple-400" />
-                </div>
-                <div className="text-left">
-                  <h3 className="text-white font-semibold">Запланировать занятие</h3>
-                  <p className="text-slate-500 text-xs">Добавить в календарь</p>
-                </div>
-              </div>
-              <ChevronRight className="w-5 h-5 text-slate-500 group-hover:text-purple-400 transition-colors" />
-            </button>
-          </div>
-        </section>
-
         {/* Recent Activity Placeholder */}
         <section className="space-y-4">
           <div className="flex justify-between items-center px-1">
@@ -172,11 +123,6 @@ const Dashboard = () => {
 
       {/* Bottom Navigation (Mobile) */}
       <nav className="fixed bottom-0 left-0 right-0 h-20 bg-slate-900/80 backdrop-blur-xl border-t border-purple-500/10 flex items-center justify-around px-6 md:hidden">
-        <div className="flex flex-col items-center gap-1 text-purple-400">
-          <div className="w-1.5 h-1.5 rounded-full bg-purple-400 mb-1" />
-          <Activity className="w-6 h-6" />
-          <span className="text-[10px] font-medium">Главная</span>
-        </div>
         <div className="flex flex-col items-center gap-1 text-slate-500">
           <Calendar className="w-6 h-6" />
           <span className="text-[10px] font-medium">Календарь</span>

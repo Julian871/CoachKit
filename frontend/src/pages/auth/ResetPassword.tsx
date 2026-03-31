@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Mail, Lock, ArrowRight, AlertCircle, ChevronLeft, Eye, EyeOff } from 'lucide-react'
-import { resetPassword } from '../api/authApi'
+import { resetPassword } from '../../api/authApi'
 
 const ResetPassword = () => {
   const location = useLocation()

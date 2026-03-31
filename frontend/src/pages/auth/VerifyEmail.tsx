@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { useAuthStore } from '../stores/authStore'
-import { verifyEmail } from '../api/authApi'
+import { useAuthStore } from '../../stores/authStore'
+import { verifyEmail } from '../../api/authApi'
 import { Loader2, CheckCircle, XCircle } from 'lucide-react'
 
 const VerifyEmail = () => {
