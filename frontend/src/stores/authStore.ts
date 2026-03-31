@@ -1,3 +1,4 @@
+
 import { create } from 'zustand'
 
 interface User {
@@ -20,12 +21,14 @@ export const useAuthStore = create<AuthState>((set) => ({
   accessToken: null,
   user: null,
   isAuthenticated: false,
-  setAuth: (token, user) => set({ 
-    accessToken: token, 
-    user: { ...user, emailVerified: user.emailVerified ?? false }, 
-    isAuthenticated: true 
-  }),
-  clearAuth: () => set({ accessToken: null, user: null, isAuthenticated: false }),
+  setAuth: (token, user) => {
+    console.log('setAuth called', { email: user.email, verified: user.emailVerified })
+    set({ accessToken: token, user, isAuthenticated: true })
+  },
+  clearAuth: () => {
+    console.log('clearAuth called')
+    set({ accessToken: null, user: null, isAuthenticated: false })
+  },
   updateEmailVerified: (status) => set((state) => ({
     user: state.user ? { ...state.user, emailVerified: status } : null
   })),

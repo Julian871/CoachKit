@@ -2,9 +2,8 @@ import axios from 'axios';
 
 const api = axios.create({
   baseURL: '/api/v1/auth',
-});
-
-// Axios interceptor can be added here for token injection if needed
+  withCredentials: true,
+})
 
 export const registerUser = async (data: any) => {
   const response = await api.post('/register', data);
@@ -33,6 +32,16 @@ export const forgotPassword = async (email: string) => {
 
 export const resetPassword = async (data: { email: string; code: string; newPassword: string }) => {
   const response = await api.post('/reset-password', data)
+  return response.data
+}
+
+export const getCurrentUser = async () => {
+  const response = await api.get('/me')
+  return response.data
+}
+
+export const refreshSession = async () => {
+  const response = await api.post('/refresh')
   return response.data
 }
 
