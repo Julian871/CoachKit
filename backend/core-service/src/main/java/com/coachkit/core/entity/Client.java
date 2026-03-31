@@ -30,11 +30,17 @@ public class Client {
     @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(length = 255)
-    private String email;
+    @Column(length = 100)
+    private String instagram;
 
     @Column(length = 20)
     private String phone;
+
+    @Column(length = 100)
+    private String telegram;
+
+    @Column(length = 10)
+    private String avatar;
 
     @Column(name = "birth_date")
     private LocalDate birthDate;

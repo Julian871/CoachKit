@@ -17,8 +17,6 @@ public interface ClientRepository extends JpaRepository<Client, UUID> {
 
     Optional<Client> findByIdAndUserIdAndActiveTrue(UUID id, UUID userId);
 
-    boolean existsByUserIdAndEmailAndActiveTrue(UUID userId, String email);
-
     @Modifying
     @Transactional
     @Query("UPDATE Client c SET c.active = false WHERE c.id = :id AND c.userId = :userId")

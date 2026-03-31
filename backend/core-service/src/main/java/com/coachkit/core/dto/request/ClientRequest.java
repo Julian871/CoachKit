@@ -17,14 +17,21 @@ public class ClientRequest {
     @Schema(description = "Client full name", example = "John Doe", maxLength = 100)
     private String name;
 
-    @Email(message = "Invalid email format")
-    @Size(max = 255, message = "Email must not exceed 255 characters")
-    @Schema(description = "Client email", example = "john.doe@example.com")
-    private String email;
+    @Size(max = 100, message = "Instagram username must not exceed 100 characters")
+    @Schema(description = "Client email", example = "@instagram")
+    private String instagram;
 
     @Size(max = 20, message = "Phone must not exceed 20 characters")
     @Schema(description = "Client phone number", example = "+1234567890")
     private String phone;
+
+    @Size(max = 100, message = "Telegram must not exceed 100 characters")
+    @Schema(description = "Telegram username", example = "@johndoe")
+    private String telegram;
+
+    @Size(max = 10, message = "Avatar emoji must not exceed 10 characters")
+    @Schema(description = "Avatar emoji", example = "💪", maxLength = 10)
+    private String avatar;
 
     @Schema(description = "Client birth date", example = "1990-01-01")
     private LocalDate birthDate;

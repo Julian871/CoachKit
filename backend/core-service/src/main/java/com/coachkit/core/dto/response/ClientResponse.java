@@ -19,11 +19,17 @@ public class ClientResponse {
     @Schema(description = "Client full name")
     private String name;
 
-    @Schema(description = "Client email")
-    private String email;
+    @Schema(description = "Instagram username")
+    private String instagram;
 
     @Schema(description = "Client phone number")
     private String phone;
+
+    @Schema(description = "Telegram username")
+    private String telegram;
+
+    @Schema(description = "Avatar emoji")
+    private String avatar;
 
     @Schema(description = "Client birth date")
     private LocalDate birthDate;

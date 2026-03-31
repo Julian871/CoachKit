@@ -30,12 +30,6 @@ public class ClientCommandServiceImpl implements ClientCommandService {
     public ClientResponse createClient(UUID userId, ClientRequest request) {
         log.debug("Creating client for user: {}", userId);
 
-        if (request.getEmail() != null && !request.getEmail().isBlank()) {
-            if (clientRepository.existsByUserIdAndEmailAndActiveTrue(userId, request.getEmail())) {
-                throw new CoreException("Client with this email already exists", HttpStatus.CONFLICT);
-            }
-        }
-
         Client client = clientMapper.toEntity(request);
         client.setUserId(userId);
 
@@ -56,13 +50,6 @@ public class ClientCommandServiceImpl implements ClientCommandService {
 
         Client client = clientRepository.findByIdAndUserIdAndActiveTrue(clientId, userId)
                 .orElseThrow(() -> new CoreException("Client not found", HttpStatus.NOT_FOUND));
-
-        if (request.getEmail() != null && !request.getEmail().isBlank() &&
-                !request.getEmail().equals(client.getEmail())) {
-            if (clientRepository.existsByUserIdAndEmailAndActiveTrue(userId, request.getEmail())) {
-                throw new CoreException("Client with this email already exists", HttpStatus.CONFLICT);
-            }
-        }
 
         clientMapper.updateEntity(client, request);
         client = clientRepository.save(client);
