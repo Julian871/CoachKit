@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../stores/authStore'
 import { useAuth } from '../hooks/useAuth'
+import BottomNavigation from '../components/layout/BottomNavigation'
 import { 
   LogOut, 
   CheckCircle2, 
@@ -10,12 +12,11 @@ import {
   Dumbbell,
   ChevronRight,
   User as UserIcon,
-  Loader2,
-  LayoutDashboardIcon,
-  Home
+  Loader2
 } from 'lucide-react'
 
 const Dashboard = () => {
+  const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
   const { logout } = useAuth()
   const [loading, setLoading] = useState(true)
@@ -84,33 +85,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="glass-card rounded-3xl p-6 space-y-2">
-            <Users className="text-purple-400 w-6 h-6 mb-2" />
-            <div className="text-3xl font-bold text-white leading-none">0</div>
-            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Активных клиентов</div>
-          </div>
-          <div className="glass-card rounded-3xl p-6 space-y-2">
-            <Dumbbell className="text-purple-400 w-6 h-6 mb-2" />
-            <div className="text-3xl font-bold text-white leading-none">0</div>
-            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Шаблонов тренировок</div>
-          </div>
-        </div>
-
-        {/* Recent Activity Placeholder */}
-        <section className="space-y-4">
-          <div className="flex justify-between items-center px-1">
-            <h2 className="text-xl font-bold text-white">Недавняя активность</h2>
-          </div>
-          
-          <div className="glass-card rounded-2xl p-8 text-center">
-            <Activity className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-            <p className="text-slate-500 text-sm">Пока нет активности</p>
-            <p className="text-slate-600 text-xs mt-1">Начните добавлять клиентов и тренировки</p>
-          </div>
-        </section>
-
         {/* Logout Button */}
         <button 
           onClick={logout}
@@ -121,21 +95,7 @@ const Dashboard = () => {
         </button>
       </main>
 
-      {/* Bottom Navigation (Mobile) */}
-      <nav className="fixed bottom-0 left-0 right-0 h-20 bg-slate-900/80 backdrop-blur-xl border-t border-purple-500/10 flex items-center justify-around px-6 md:hidden">
-        <div className="flex flex-col items-center gap-1 text-slate-500">
-          <Calendar className="w-6 h-6" />
-          <span className="text-[10px] font-medium">Календарь</span>
-        </div>
-        <div className="flex flex-col items-center gap-1 text-slate-500">
-          <Users className="w-6 h-6" />
-          <span className="text-[10px] font-medium">Клиенты</span>
-        </div>
-        <div className="flex flex-col items-center gap-1 text-slate-500">
-          <UserIcon className="w-6 h-6" />
-          <span className="text-[10px] font-medium">Профиль</span>
-        </div>
-      </nav>
+      <BottomNavigation />
     </div>
   )
 }

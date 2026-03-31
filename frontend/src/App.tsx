@@ -12,6 +12,9 @@ import ForgotPasswordSent from './pages/auth/ForgotPasswordSent'
 import ResetPassword from './pages/auth/ResetPassword'
 import ResetPasswordSuccess from './pages/auth/ResetPasswordSuccess'
 import ProtectedRoute from './components/auth/ProtectedRoute'
+import ClientsList from './pages/clients/ClientsList'
+import ClientDetails from './pages/clients/ClientDetails'
+import ClientNew from './pages/clients/ClientNew'
 
 const queryClient = new QueryClient()
 
@@ -29,6 +32,10 @@ function AppContent() {
       <Route path="/forgot-password-sent" element={<ForgotPasswordSent />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/reset-password-success" element={<ResetPasswordSuccess />} />
+
+      <Route path="/clients" element={<ClientsList />} />
+      <Route path="/clients/new" element={<ClientNew />} />
+      <Route path="/clients/:id" element={<ClientDetails />} />
       
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
