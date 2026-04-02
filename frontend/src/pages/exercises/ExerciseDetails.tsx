@@ -40,7 +40,7 @@ const ExerciseDetails = () => {
   const handleDelete = async () => {
     if (!selectedExercise) return
     await deleteExercise(selectedExercise.id)
-    navigate('/exercises')
+    navigate('/exercises', { replace: true })
   }
 
   const handleUpdate = async (data: any) => {

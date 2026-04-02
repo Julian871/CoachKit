@@ -1,5 +1,5 @@
 // src/pages/exercises/ExercisesList.tsx
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState, useCallback, memo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Plus, Dumbbell, Loader2 } from 'lucide-react'
 import { useExercises } from '../../hooks/useExercises'
@@ -9,11 +9,12 @@ import ExerciseFilters from '../../components/exercises/ExerciseFilters'
 import ExerciseFormModal from '../../components/exercises/ExerciseFormModal'
 import BottomNavigation from '../../components/layout/BottomNavigation'
 
+const MemoizedExerciseCard = memo(ExerciseCard)
+
 const ExercisesList = () => {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const [showCreateModal, setShowCreateModal] = useState(false)
-  const loaderRef = useRef<HTMLDivElement>(null)
   
   const {
     exercises,
@@ -39,7 +40,6 @@ const ExercisesList = () => {
       }
     })
     
-    // Синхронизируем только если фильтры из URL отличаются от текущих
     const currentFilters: any = {}
     if (filters.name) currentFilters.name = filters.name
     if (filters.bodyRegion) currentFilters.bodyRegion = filters.bodyRegion
@@ -50,7 +50,7 @@ const ExercisesList = () => {
     if (hasChanges && Object.keys(urlFilters).length > 0) {
       updateFilters(urlFilters)
     }
-  }, [searchParams])
+  }, [searchParams, updateFilters, filters])
 
   // Обновление URL при изменении фильтров
   useEffect(() => {
@@ -63,32 +63,34 @@ const ExercisesList = () => {
     setSearchParams(newParams, { replace: true })
   }, [filters, setSearchParams])
 
-  // Бесконечный скролл
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage && !isLoading) {
-          fetchNextPage()
-        }
-      },
-      { threshold: 0.1 }
-    )
-
-    if (loaderRef.current) {
-      observer.observe(loaderRef.current)
-    }
-
-    return () => observer.disconnect()
-  }, [hasNextPage, isFetchingNextPage, isLoading, fetchNextPage])
-
-  const handleFilterChange = (newFilters: Partial<typeof filters>) => {
+  const handleFilterChange = useCallback((newFilters: Partial<typeof filters>) => {
     updateFilters(newFilters)
-  }
+  }, [updateFilters])
 
-  const handleCreateExercise = async (data: any) => {
+  const handleCreateExercise = useCallback(async (data: any) => {
     await createExercise(data)
     setShowCreateModal(false)
-  }
+  }, [createExercise])
+
+  const handleExerciseClick = useCallback((id: string) => {
+    navigate(`/exercises/${id}`)
+  }, [navigate])
+
+  const handleLoadMore = useCallback(() => {
+    if (hasNextPage && !isFetchingNextPage && !isLoading) {
+      fetchNextPage()
+    }
+  }, [hasNextPage, isFetchingNextPage, isLoading, fetchNextPage])
+
+  const renderExercises = useCallback(() => {
+    return exercises.map((exercise) => (
+      <MemoizedExerciseCard
+        key={exercise.id}
+        exercise={exercise}
+        onClick={() => handleExerciseClick(exercise.id)}
+      />
+    ))
+  }, [exercises, handleExerciseClick])
 
   // Очистка при размонтировании
   useEffect(() => {
@@ -101,28 +103,28 @@ const ExercisesList = () => {
     <div className="min-h-screen bg-gradient-to-b from-slate-900 via-purple-950 to-slate-900 pb-24 md:pb-8">
       {/* Header */}
       <div className="pt-12 px-6 pb-4 sticky top-0 bg-gradient-to-b from-slate-900 via-purple-950/95 to-transparent backdrop-blur-sm z-10">
-  <div className="flex justify-between items-center mb-4">
-    <div>
-      <h1 className="text-3xl font-bold text-white mb-1">Упражнения</h1>
-      <p className="text-slate-400 text-sm">
-        {totalElements} {totalElements === 1 ? 'упражнение' : totalElements === 2 || totalElements === 3 || totalElements === 4 ? 'упражнения' : 'упражнений'}
-      </p>
-    </div>
-    <button
-      onClick={() => setShowCreateModal(true)}
-      className="btn-primary py-3 px-5 flex items-center gap-2"
-    >
-      <Plus className="w-5 h-5" />
-      <span className="hidden sm:inline">Добавить</span>
-    </button>
-  </div>
+        <div className="flex justify-between items-center mb-4">
+          <div>
+            <h1 className="text-3xl font-bold text-white mb-1">Упражнения</h1>
+            <p className="text-slate-400 text-sm">
+              {totalElements} {totalElements === 1 ? 'упражнение' : totalElements === 2 || totalElements === 3 || totalElements === 4 ? 'упражнения' : 'упражнений'}
+            </p>
+          </div>
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="btn-primary py-3 px-5 flex items-center gap-2"
+          >
+            <Plus className="w-5 h-5" />
+            <span className="hidden sm:inline">Добавить</span>
+          </button>
+        </div>
 
-  {/* Компактные фильтры */}
-  <ExerciseFilters
-    filters={filters}
-    onFilterChange={handleFilterChange}
-  />
-</div>
+        {/* Компактные фильтры */}
+        <ExerciseFilters
+          filters={filters}
+          onFilterChange={handleFilterChange}
+        />
+      </div>
 
       {/* Exercises List */}
       <main className="px-6 max-w-5xl mx-auto space-y-4">
@@ -152,20 +154,27 @@ const ExercisesList = () => {
           </div>
         ) : (
           <>
-            {exercises.map((exercise) => (
-              <ExerciseCard
-                key={exercise.id}
-                exercise={exercise}
-                onClick={() => navigate(`/exercises/${exercise.id}`)}
-              />
-            ))}
+            {renderExercises()}
             
-            {/* Loader для бесконечного скролла */}
+            {/* Кнопка "Загрузить ещё" */}
             {hasNextPage && (
-              <div ref={loaderRef} className="py-8 flex justify-center">
-                {isFetchingNextPage && (
-                  <Loader2 className="w-8 h-8 text-purple-400 animate-spin" />
-                )}
+              <div className="py-8 flex justify-center">
+                <button
+                  onClick={handleLoadMore}
+                  disabled={isFetchingNextPage}
+                  className="btn-secondary px-6 py-3 flex items-center gap-2"
+                >
+                  {isFetchingNextPage ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Загрузка...
+                    </>
+                  ) : (
+                    <>
+                      Загрузить ещё
+                    </>
+                  )}
+                </button>
               </div>
             )}
             
@@ -173,7 +182,7 @@ const ExercisesList = () => {
             {!hasNextPage && exercises.length > 0 && (
               <div className="py-8 text-center">
                 <p className="text-sm text-slate-500">
-                  Показаны все {totalElements} {totalElements === 1 ? 'упражнение' : totalElements === 2 || totalElements === 3 || totalElements === 4 ? 'упражнения' : 'упражнений'}
+                  🎉 Показаны все {totalElements} упражнений
                 </p>
               </div>
             )}

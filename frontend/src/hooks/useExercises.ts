@@ -20,12 +20,22 @@ export const useExercises = () => {
   } = useInfiniteQuery({
     queryKey: ['exercises', filters],
     queryFn: ({ pageParam = 0 }) => {
+      console.log(`📡 Запрос страницы ${pageParam}`, filters)
       return getExercises({ ...filters, page: pageParam })
     },
-    getNextPageParam: (lastPage) => {
-      return lastPage.hasNext ? lastPage.page + 1 : undefined
-    },
+    getNextPageParam: (lastPage, allPages) => {
+  console.log('📄 getNextPageParam вызван:', { 
+    page: lastPage.page, 
+    hasNext: lastPage.hasNext, 
+    totalElements: lastPage.totalElements,
+    loadedPages: allPages.length
+  })
+  return lastPage.hasNext ? lastPage.page + 1 : undefined
+},
     initialPageParam: 0,
+    staleTime: 1000 * 60, // Данные считаются свежими 1 минуту
+    gcTime: 1000 * 60 * 5, // Кеш живет 5 минут
+    refetchOnWindowFocus: false, // Не перезапрашивать при фокусе окна
   })
   
   // Обновляем стор при получении данных
@@ -34,6 +44,8 @@ export const useExercises = () => {
       // Объединяем все страницы
       const allExercises = data.pages.flatMap(page => page.content)
       const lastPage = data.pages[data.pages.length - 1]
+      
+      console.log(`📦 Всего загружено упражнений: ${allExercises.length}, последняя страница: ${lastPage.page}`)
       
       appendExercises(allExercises)
       setExercisesPage(allExercises, {
@@ -51,6 +63,7 @@ export const useExercises = () => {
   // Обновление фильтров (сбрасывает все данные)
   const updateFilters = useCallback((newFilters: Partial<ExerciseFilter>) => {
     const updatedFilters = { ...filters, ...newFilters, page: 0 }
+    console.log('🔄 Обновление фильтров:', updatedFilters)
     setFilters(updatedFilters)
     // Инвалидируем запрос, чтобы загрузить заново
     queryClient.invalidateQueries({ queryKey: ['exercises'] })
@@ -60,6 +73,7 @@ export const useExercises = () => {
   const createMutation = useMutation({
     mutationFn: createExercise,
     onSuccess: (newExercise) => {
+      console.log('✅ Упражнение создано:', newExercise.name)
       addExercise(newExercise)
       queryClient.invalidateQueries({ queryKey: ['exercises'] })
     },
@@ -70,6 +84,7 @@ export const useExercises = () => {
     mutationFn: ({ id, data }: { id: string; data: ExerciseRequest }) =>
       updateExercise(id, data),
     onSuccess: (updatedExercise) => {
+      console.log('✅ Упражнение обновлено:', updatedExercise.name)
       updateExerciseStore(updatedExercise.id, updatedExercise)
       queryClient.invalidateQueries({ queryKey: ['exercises'] })
     },
@@ -79,6 +94,7 @@ export const useExercises = () => {
   const deleteMutation = useMutation({
     mutationFn: deleteExercise,
     onSuccess: (_, id) => {
+      console.log('✅ Упражнение удалено:', id)
       removeExercise(id)
       queryClient.invalidateQueries({ queryKey: ['exercises'] })
     },

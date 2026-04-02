@@ -29,7 +29,7 @@ const ClientNew = () => {
     setErrors({})
     
     await createClient(formData)
-    navigate('/clients')
+    navigate('/clients', { replace: true })
   }
 
   return (

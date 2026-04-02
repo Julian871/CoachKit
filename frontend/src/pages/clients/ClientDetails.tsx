@@ -45,7 +45,7 @@ const ClientDetails = () => {
     setIsDeleting(true)
     await deleteClient(selectedClient.id)
     setIsDeleting(false)
-    navigate('/clients')
+    navigate('/clients', { replace: true })
   }
 
   const handleUpdate = async (data: any) => {

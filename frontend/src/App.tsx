@@ -1,4 +1,4 @@
-// src/App.tsx (обновленный)
+
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useSessionRefresh } from './hooks/useSessionRefresh'
@@ -17,7 +17,8 @@ import ClientDetails from './pages/clients/ClientDetails'
 import ClientNew from './pages/clients/ClientNew'
 import ExercisesList from './pages/exercises/ExercisesList'
 import ExerciseDetails from './pages/exercises/ExerciseDetails'
-// import ExerciseNew from './pages/exercises/ExerciseNew' // Не нужен, т.к. используем модалку
+import TemplatesList from './pages/templates/TemplatesList'
+import TemplateDetails from './pages/templates/TemplateDetails'
 
 const queryClient = new QueryClient()
 
@@ -27,6 +28,7 @@ function AppContent() {
   
   return (
     <Routes>
+      {/* Публичные маршруты (без авторизации) */}
       <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
       <Route path="/verify-email-sent" element={<VerifyEmailSent />} />
@@ -36,17 +38,19 @@ function AppContent() {
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/reset-password-success" element={<ResetPasswordSuccess />} />
 
-      <Route path="/clients" element={<ClientsList />} />
-      <Route path="/clients/new" element={<ClientNew />} />
-      <Route path="/clients/:id" element={<ClientDetails />} />
-      
-      <Route path="/exercises" element={<ExercisesList />} />
-      <Route path="/exercises/:id" element={<ExerciseDetails />} />
-      
+      {/* Защищенные маршруты (требуют авторизации) */}
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/clients" element={<ClientsList />} />
+        <Route path="/clients/new" element={<ClientNew />} />
+        <Route path="/clients/:id" element={<ClientDetails />} />
+        <Route path="/exercises" element={<ExercisesList />} />
+        <Route path="/exercises/:id" element={<ExerciseDetails />} />
+        <Route path="/templates" element={<TemplatesList />} />
+        <Route path="/templates/:id" element={<TemplateDetails />} />
       </Route>
       
+      {/* Редирект по умолчанию */}
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   )

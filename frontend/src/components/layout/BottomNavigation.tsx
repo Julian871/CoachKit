@@ -51,9 +51,9 @@ const BottomNavigation = () => {
       </button>
 
       <button
-        onClick={() => navigate('/template')}
+        onClick={() => navigate('/templates')}
         className={`flex flex-col items-center gap-1 transition-colors ${
-          isActive('/template') ? 'text-purple-400' : 'text-slate-500 hover:text-purple-400'
+          isActive('/templates') ? 'text-purple-400' : 'text-slate-500 hover:text-purple-400'
         }`}
       >
         <ScrollText className="w-6 h-6" />
