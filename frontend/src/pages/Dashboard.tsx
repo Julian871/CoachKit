@@ -74,16 +74,6 @@ const Dashboard = () => {
       </div>
 
       <main className="px-6 max-w-5xl mx-auto space-y-6">
-        {/* Verification Status Card */}
-        <div className="glass-card rounded-3xl p-6 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center">
-            <CheckCircle2 className="text-green-400 w-7 h-7" />
-          </div>
-          <div>
-            <h3 className="text-white font-bold text-lg">Аккаунт подтверждён</h3>
-            <p className="text-slate-400 text-sm">Все функции разблокированы</p>
-          </div>
-        </div>
 
         {/* Logout Button */}
         <button 

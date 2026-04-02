@@ -1,4 +1,4 @@
-
+// src/App.tsx (обновленный)
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useSessionRefresh } from './hooks/useSessionRefresh'
@@ -15,6 +15,9 @@ import ProtectedRoute from './components/auth/ProtectedRoute'
 import ClientsList from './pages/clients/ClientsList'
 import ClientDetails from './pages/clients/ClientDetails'
 import ClientNew from './pages/clients/ClientNew'
+import ExercisesList from './pages/exercises/ExercisesList'
+import ExerciseDetails from './pages/exercises/ExerciseDetails'
+// import ExerciseNew from './pages/exercises/ExerciseNew' // Не нужен, т.к. используем модалку
 
 const queryClient = new QueryClient()
 
@@ -36,6 +39,9 @@ function AppContent() {
       <Route path="/clients" element={<ClientsList />} />
       <Route path="/clients/new" element={<ClientNew />} />
       <Route path="/clients/:id" element={<ClientDetails />} />
+      
+      <Route path="/exercises" element={<ExercisesList />} />
+      <Route path="/exercises/:id" element={<ExerciseDetails />} />
       
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
